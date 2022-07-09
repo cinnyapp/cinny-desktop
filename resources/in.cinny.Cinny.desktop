@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 
 Name=Cinny
-Comment=Yet another matrix client with simple, elegant and secure interface.
+Comment=Yet another Matrix client with simple, elegant and secure interface
 Icon=cinny
 Exec=cinny
 Terminal=false
