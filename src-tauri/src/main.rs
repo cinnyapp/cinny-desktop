@@ -6,6 +6,8 @@
 #[cfg(target_os = "macos")]
 mod menu;
 
+mod link_handler;
+
 fn main() {
   let builder = tauri::Builder::default();
 
@@ -13,6 +15,7 @@ fn main() {
   let builder = builder.menu(menu::menu());
 
   builder
+    .invoke_handler(tauri::generate_handler![link_handler::open_link])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
