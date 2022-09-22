@@ -1,7 +1,3 @@
-
-use webbrowser;
-use url;
-
 pub mod steam;
 
 type Action = fn(&url::Url) -> bool;
@@ -12,40 +8,59 @@ static FUNCTIONS: &'static [(&'static str, Action)] = &[
 ];
 
 fn handle_default(url: &url::Url) -> bool{
-    webbrowser::open(url.as_str()).unwrap();
-    return true;
+    let result = open::that(url.as_str());
+    match result {
+        Ok(_) => true,
+        Err(_) => false
+    }
 }
 
-fn find_action(prog: &String) -> Option<Action> {
+fn find_action(prog: &str) -> Option<Action> {
     match FUNCTIONS.binary_search_by(|&(name,_)| name.cmp(prog)) {
         Ok(idx) => Some(FUNCTIONS[idx].1),
         Err(_) => None,
     }
 }
 
-fn invoke(args: &url::Url, bypass_handlers: bool) -> bool {
+fn invoke(url: &url::Url, bypass_handlers: bool) -> bool {
 
-    if bypass_handlers { return handle_default(args); }
+    if bypass_handlers { return handle_default(url); }
 
-    let host = String::from(args.host_str().unwrap());
+    let mut search_string: Option<&str>;
 
-    let mut result = match find_action(&host) {
-        Some(action) => action(args),
-        None => handle_default(args),
+    search_string = url.host_str();
+
+    search_string = match search_string {
+        Some(str) => Some(str),
+        None => Some(url.scheme())
     };
 
+    let action: Action = match search_string {
+        Some(host_string) => {
+            match find_action(host_string) {
+                Some(found_action) => found_action,
+                None => handle_default
+            }
+        },
+        None => handle_default
+    };
+
+    let mut result = action(url);
+
+    // If the custom link handler returned false, it failed and we should open in default
     if !result {
-        result = handle_default(args);
+        result = handle_default(url)
     }
 
     return result;
 }
 
 #[tauri::command]
-pub(crate) fn open_link(url: String, bypass_handlers: bool){
+pub(crate) fn open_link(url: String, bypass_handlers: bool) -> bool{
     println!("Opening link: {}", url);
 
-    let parsed_url = url::Url::parse(&url).unwrap();
-
-    invoke(&parsed_url, bypass_handlers);
+    match url::Url::parse(&url) {
+        Ok(url) => invoke(&url, bypass_handlers),
+        Err(_) => false
+    }
 }
