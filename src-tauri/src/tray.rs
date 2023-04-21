@@ -1,6 +1,6 @@
 use tauri::{
     CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu,
-    SystemTrayMenuItem, WindowEvent,
+    SystemTrayMenuItem, WindowEvent, SystemTrayHandle, Window,
 };
 
 const TRAY_LABEL: &'static str = "main-tray";
@@ -40,38 +40,44 @@ pub fn system_tray() -> SystemTray {
         .with_id(TRAY_LABEL.to_owned())
 }
 
+pub fn toggle_window_state<R: tauri::Runtime>(window: Window<R>, tray_handle: SystemTrayHandle<R>) {
+    // Hide the window if it's visible, show it if not
+    // `is_visible` returns true for minimized state for whatever reason
+    if window.is_visible().unwrap() {
+        window.hide().unwrap();
+        tray_handle
+            .get_item("toggle")
+            .set_title("Show Cinny")
+            .unwrap();
+    } else {
+        window.unminimize().unwrap();
+        window.show().unwrap();
+        window.set_focus().unwrap();
+        tray_handle
+            .get_item("toggle")
+            .set_title("Hide Cinny")
+            .unwrap();
+    };
+}
+
 pub fn system_tray_handler<R: tauri::Runtime>(app: &tauri::AppHandle<R>, event: SystemTrayEvent) {
     let tray_handle = match app.tray_handle_by_id(TRAY_LABEL) {
         Some(h) => h,
         None => return,
     };
+    let window = app.get_window("main").unwrap();
 
     match event {
         SystemTrayEvent::LeftClick { .. } => {
-            // Show the window if it's hidden or whatever
-            app.get_window("main").unwrap().show().ok();
-            tray_handle
-                .get_item("toggle")
-                .set_title("Hide Cinny")
-                .unwrap();
+            toggle_window_state(window, tray_handle);
         }
         SystemTrayEvent::MenuItemClick { id, .. } => {
-            let item_handle = tray_handle.get_item(&id);
             match id.as_str() {
                 "quit" => {
                     app.exit(0);
                 }
                 "toggle" => {
-                    let window = app.get_window("main").unwrap();
-                    // Hide the window if it's visible, show it if not
-                    let new_title = if window.is_visible().unwrap() {
-                        window.hide().unwrap();
-                        "Show Cinny"
-                    } else {
-                        window.show().unwrap();
-                        "Hide Cinny"
-                    };
-                    item_handle.set_title(new_title).unwrap();
+                    toggle_window_state(window, tray_handle)
                 }
                 _ => {}
             }
