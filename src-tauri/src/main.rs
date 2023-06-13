@@ -5,6 +5,7 @@
 
 #[cfg(target_os = "macos")]
 mod menu;
+mod clipboard;
 
 fn main() {
   let builder = tauri::Builder::default();
@@ -13,6 +14,7 @@ fn main() {
   let builder = builder.menu(menu::menu());
 
   builder
+    .invoke_handler(tauri::generate_handler![clipboard::clipboard_read_image])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
