@@ -5,6 +5,7 @@
 
 #[cfg(target_os = "macos")]
 mod menu;
+mod shortcuts;
 
 fn main() {
   let builder = tauri::Builder::default();
@@ -12,7 +13,17 @@ fn main() {
   #[cfg(target_os = "macos")]
   let builder = builder.menu(menu::menu());
 
-  builder
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+    builder
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(run_event_handler)
+}
+
+fn run_event_handler<R: tauri::Runtime>(app: &tauri::AppHandle<R>, event: tauri::RunEvent) {
+    match event {
+        tauri::RunEvent::Ready => {
+            shortcuts::ready_event_handler(app);
+        }
+        _ => {}
+    }
 }
