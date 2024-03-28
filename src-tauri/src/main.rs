@@ -6,6 +6,8 @@
 mod menu;
 mod tray;
 
+use tauri::Manager;
+
 fn main() {
     let builder = tauri::Builder::default();
 
@@ -14,7 +16,14 @@ fn main() {
 
     let builder = builder
         .system_tray(tray::system_tray())
-        .on_system_tray_event(tray::system_tray_handler);
+        .on_system_tray_event(tray::system_tray_handler)
+        .setup(|app| {
+            let handle = app.handle();
+            app.listen_global("quit", move |_| {
+                handle.exit(0);
+            });
+            Ok(())
+        });
 
     builder
         .build(tauri::generate_context!())
