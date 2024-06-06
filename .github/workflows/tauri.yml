@@ -239,7 +239,7 @@ jobs:
   # Upload release.json
   release-update:
     if: always()
-    needs: [windows-x86_64, linux-x86_64, macos-x86_64, macos-aarch64]
+    needs: [windows-x86_64, linux-x86_64, macos-x86_64] #, macos-aarch64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
