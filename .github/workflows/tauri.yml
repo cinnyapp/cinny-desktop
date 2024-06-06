@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.6
         with: 
           submodules: true
       - name: Get release
@@ -18,9 +18,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup node
-        uses: actions/setup-node@v3.6.0
+        uses: actions/setup-node@v4.0.2
         with:
-          node-version: 18.12.1
+          node-version: 20.12.2
           cache: 'npm'
       - name: Install Rust stable
         uses: actions-rs/toolchain@v1.0.7
@@ -31,7 +31,7 @@ jobs:
       - name: Install tauri dependencies
         run: npm ci
       - name: Build desktop app with Tauri
-        uses: tauri-apps/tauri-action@v0.4.4
+        uses: tauri-apps/tauri-action@v0.5.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -57,7 +57,7 @@ jobs:
         run: Move-Item "src-tauri\target\release\bundle\msi\Cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi.zip.sig" "src-tauri\target\release\bundle\msi\Cinny_desktop-x86_64.msi.zip.sig"
         shell: pwsh
       - name: Upload tagged release
-        uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
+        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87
         with:
           files: |
             src-tauri\target\release\bundle\msi\Cinny_desktop-x86_64.msi
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.6
         with: 
           submodules: true
       - name: Get release
@@ -79,9 +79,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup node
-        uses: actions/setup-node@v3.6.0
+        uses: actions/setup-node@v4.0.2
         with:
-          node-version: 18.12.1
+          node-version: 20.12.2
           cache: 'npm'
       - name: Install Rust stable
         uses: actions-rs/toolchain@v1.0.7
@@ -96,7 +96,7 @@ jobs:
       - name: Install tauri dependencies
         run: npm ci
       - name: Build desktop app with Tauri
-        uses: tauri-apps/tauri-action@v0.4.4
+        uses: tauri-apps/tauri-action@v0.5.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -116,7 +116,7 @@ jobs:
       - name: Move AppImage.tar.gz.sig
         run: mv "src-tauri/target/release/bundle/appimage/cinny_${{ steps.vars.outputs.tag }}_amd64.AppImage.tar.gz.sig" "src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage.tar.gz.sig"
       - name: Upload tagged release
-        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87
         with:
           files: |
             src-tauri/target/release/bundle/deb/Cinny_desktop-x86_64.deb
@@ -129,7 +129,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.6
         with: 
           submodules: true
       - name: Get release
@@ -138,9 +138,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup node
-        uses: actions/setup-node@v3.6.0
+        uses: actions/setup-node@v4.0.2
         with:
-          node-version: 18.12.1
+          node-version: 20.12.2
           cache: 'npm'
       - name: Install Rust stable
         uses: actions-rs/toolchain@v1.0.7
@@ -152,7 +152,7 @@ jobs:
       - name: Install tauri dependencies
         run: npm ci
       - name: Build desktop app with Tauri
-        uses: tauri-apps/tauri-action@v0.4.4
+        uses: tauri-apps/tauri-action@v0.5.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -171,7 +171,7 @@ jobs:
       - name: Move app.tar.gz.sig
         run: mv "src-tauri/target/release/bundle/macos/Cinny.app.tar.gz.sig" "src-tauri/target/release/bundle/macos/Cinny_desktop-universal.app.tar.gz.sig"
       - name: Upload tagged release
-        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87
         with:
           files: |
             src-tauri/target/release/bundle/dmg/Cinny_desktop-universal.dmg
@@ -185,7 +185,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.6
       - name: Install dependencies
         run: npm ci
       - name: Run release.json
