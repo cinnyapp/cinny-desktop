@@ -3,7 +3,7 @@ use tauri::{
     SystemTrayMenuItem, WindowEvent, SystemTrayHandle, Window,
 };
 
-const TRAY_LABEL: &'static str = "main-tray";
+pub const TRAY_LABEL: &'static str = "main-tray";
 
 pub fn window_event_handler<R: tauri::Runtime>(
     app: &tauri::AppHandle<R>,
