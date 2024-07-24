@@ -163,7 +163,7 @@ jobs:
         id: vars
         run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
       - name: Move dmg
-        run: mv "src-tauri/target/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_x64.dmg" "src-tauri/target/release/bundle/dmg/Cinny_desktop-x86_64.dmg"
+        run: mv "src-tauri/target/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_aarch64.dmg" "src-tauri/target/release/bundle/dmg/Cinny_desktop-x86_64.dmg"
       - name: Move app.tar.gz
         run: mv "src-tauri/target/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/release/bundle/macos/Cinny_desktop-x86_64.app.tar.gz"
       - name: Move app.tar.gz.sig
