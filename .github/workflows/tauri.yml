@@ -23,9 +23,7 @@ jobs:
           node-version: 20.12.2
           cache: 'npm'
       - name: Install Rust stable
-        uses: actions-rs/toolchain@v1.0.7
-        with:
-          toolchain: stable
+        uses: dtolnay/rust-toolchain@stable
       - name: Install cinny dependencies
         run: cd cinny && npm ci
       - name: Install tauri dependencies
@@ -84,9 +82,7 @@ jobs:
           node-version: 20.12.2
           cache: 'npm'
       - name: Install Rust stable
-        uses: actions-rs/toolchain@v1.0.7
-        with:
-          toolchain: stable
+        uses: dtolnay/rust-toolchain@stable
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -164,18 +160,18 @@ jobs:
         id: vars
         run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
       - name: Move dmg
-        run: mv "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_universal.dmg" "src-tauri/target/release/bundle/dmg/Cinny_desktop-universal.dmg"
+        run: mv "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_universal.dmg" "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_desktop-universal.dmg"
       - name: Move app.tar.gz
-        run: mv "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/release/bundle/macos/Cinny_desktop-universal.app.tar.gz"
+        run: mv "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_desktop-universal.app.tar.gz"
       - name: Move app.tar.gz.sig
-        run: mv "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz.sig" "src-tauri/target/release/bundle/macos/Cinny_desktop-universal.app.tar.gz.sig"
+        run: mv "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz.sig" "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_desktop-universal.app.tar.gz.sig"
       - name: Upload tagged release
         uses: softprops/action-gh-release@a74c6b72af54cfa997e81df42d94703d6313a2d0
         with:
           files: |
-            src-tauri/target/release/bundle/dmg/Cinny_desktop-universal.dmg
-            src-tauri/target/release/bundle/macos/Cinny_desktop-universal.app.tar.gz
-            src-tauri/target/release/bundle/macos/Cinny_desktop-universal.app.tar.gz.sig
+            src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_desktop-universal.dmg
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_desktop-universal.app.tar.gz
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_desktop-universal.app.tar.gz.sig
 
   # Upload release.json
   release-update:
