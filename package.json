@@ -7,7 +7,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "tauri": "tauri",
+    "tauri": "cp config.json cinny/ && tauri",
     "release": "node scripts/release.mjs"
   },
   "keywords": [],
