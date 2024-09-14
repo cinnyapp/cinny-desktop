@@ -1,6 +1,6 @@
 {
   "name": "cinny",
-  "version": "4.0.3",
+  "version": "4.2.1",
   "description": "Yet another matrix client",
   "main": "index.js",
   "engines": {
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@actions/github": "6.0.0",
-    "@tauri-apps/cli": "1.6.0",
+    "@tauri-apps/cli": "1.6.1",
     "node-fetch": "3.3.2"
   }
 }
