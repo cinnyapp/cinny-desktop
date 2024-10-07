@@ -23,6 +23,8 @@ fn main() {
     let builder = builder.menu(menu::menu());
 
     builder
+        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .run(tauri::generate_context!())
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .run(context)
         .expect("error while building tauri application")
