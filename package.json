@@ -14,11 +14,11 @@
   "author": "Ajay Bura",
   "license": "AGPL-3.0-only",
   "dependencies": {
-    "@tauri-apps/api": "1.6.0"
+    "@tauri-apps/api": "2.2.0"
   },
   "devDependencies": {
     "@actions/github": "6.0.0",
-    "@tauri-apps/cli": "1.6.2",
+    "@tauri-apps/cli": "2.2.7",
     "node-fetch": "3.3.2"
   }
 }
