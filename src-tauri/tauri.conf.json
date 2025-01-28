@@ -1,63 +1,65 @@
 {
-  "package": {
-    "productName": "Cinny",
-    "version": "4.2.3"
-  },
-  "build": {
-    "distDir": "../cinny/dist",
-    "devPath": "http://localhost:8080",
-    "beforeDevCommand": "cd cinny && npm start",
-    "beforeBuildCommand": "cd cinny && npm run build"
-  },
-  "tauri": {
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "in.cinny.app",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "resources": [],
-      "externalBin": [],
-      "copyright": "",
-      "category": "SocialNetworking",
-      "shortDescription": "Yet another matrix client",
-      "longDescription": "",
-      "deb": {
-        "depends": []
-      },
-      "macOS": {
-        "frameworks": [],
-        "minimumSystemVersion": "",
-        "exceptionDomain": "",
-        "signingIdentity": null,
-        "providerShortName": null,
-        "entitlements": null
-      },
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": "",
-        "wix": {
-          "bannerPath": "wix/banner.bmp",
-          "dialogImagePath": "wix/dialogImage.bmp"
-        }
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "wix": {
+        "bannerPath": "wix/banner.bmp",
+        "dialogImagePath": "wix/dialogImage.bmp"
       }
     },
-    "updater": {
-      "active": true,
-      "endpoints": [
-          "https://github.com/cinnyapp/cinny-desktop/releases/download/tauri/release.json"
-      ],
-      "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDE2NDc3NDBGMTAzNTk1NUYKUldSZmxUVVFEM1JIRnRuMjVRTkFOQ21lUFI5KzRMU0s4OWtBS1RNRUVCNE9LcE9GcExNZ2M2NHoK"
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [],
+    "externalBin": [],
+    "copyright": "",
+    "category": "SocialNetworking",
+    "shortDescription": "Yet another matrix client",
+    "longDescription": "",
+    "macOS": {
+      "frameworks": [],
+      "minimumSystemVersion": "",
+      "exceptionDomain": "",
+      "signingIdentity": null,
+      "providerShortName": null,
+      "entitlements": null
     },
-    "allowlist": {
-      "all": true
+    "linux": {
+      "deb": {
+        "depends": []
+      }
+    },
+    "createUpdaterArtifacts": "v1Compatible"
+  },
+  "build": {
+    "beforeBuildCommand": "cd cinny && npm run build",
+    "frontendDist": "../cinny/dist",
+    "beforeDevCommand": "cd cinny && npm start",
+    "devUrl": "http://localhost:8080"
+  },
+  "productName": "Cinny",
+  "mainBinaryName": "Cinny",
+  "version": "4.2.3",
+  "identifier": "in.cinny.app",
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDE2NDc3NDBGMTAzNTk1NUYKUldSZmxUVVFEM1JIRnRuMjVRTkFOQ21lUFI5KzRMU0s4OWtBS1RNRUVCNE9LcE9GcExNZ2M2NHoK",
+      "endpoints": [
+        "https://github.com/cinnyapp/cinny-desktop/releases/download/tauri/release.json"
+      ]
+    }
+  },
+  "app": {
+    "security": {
+      "csp": "script-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'; connect-src ipc: http://ipc.localhost"
     },
     "windows": [
       {
@@ -67,11 +69,9 @@
         "center": true,
         "resizable": true,
         "fullscreen": false,
-        "fileDropEnabled": false
+        "dragDropEnabled": false,
+        "useHttpsScheme": true
       }
-    ],
-    "security": {
-      "csp": "script-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
-    }
+    ]
   }
 }
