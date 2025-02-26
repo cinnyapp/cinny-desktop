@@ -479,6 +479,7 @@ checksum = "6e4de3bc4ea267985becf712dc6d9eed8b04c953b3fcfb339ebc87acd9804901"
 name = "cinny"
 version = "4.4.0"
 dependencies = [
+ "macos-app-nap",
  "serde",
  "serde_json",
  "tauri",
@@ -1898,6 +1899,17 @@ dependencies = [
  "objc-foundation",
  "objc_id",
  "time",
+]
+
+[[package]]
+name = "macos-app-nap"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9701bd74bcff7fb5f9bff8ff4930a889a55f9cccc8a0dfc4c51ea08b786f0c6a"
+dependencies = [
+ "cc",
+ "cocoa-foundation",
+ "objc",
 ]
 
 [[package]]
