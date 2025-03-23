@@ -13,7 +13,7 @@ jobs:
         with: 
           submodules: true
       - name: Setup node
-        uses: actions/setup-node@v4.0.4
+        uses: actions/setup-node@v4.3.0
         with:
           node-version: 20.12.2
           cache: 'npm'
@@ -50,7 +50,7 @@ jobs:
         run: Move-Item "src-tauri\target\release\bundle\msi\Cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi.zip.sig" "src-tauri\target\release\bundle\msi\Cinny_desktop-x86_64.msi.zip.sig"
         shell: pwsh
       - name: Upload tagged release
-        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda
         with:
           files: |
             src-tauri/target/release/bundle/msi/Cinny_desktop-x86_64.msi
@@ -67,7 +67,7 @@ jobs:
         with: 
           submodules: true
       - name: Setup node
-        uses: actions/setup-node@v4.0.4
+        uses: actions/setup-node@v4.3.0
         with:
           node-version: 20.12.2
           cache: 'npm'
@@ -102,7 +102,7 @@ jobs:
       - name: Move AppImage.tar.gz.sig
         run: mv "src-tauri/target/release/bundle/appimage/cinny_${{ steps.vars.outputs.tag }}_amd64.AppImage.tar.gz.sig" "src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage.tar.gz.sig"
       - name: Upload tagged release
-        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda
         with:
           files: |
             src-tauri/target/release/bundle/deb/Cinny_desktop-x86_64.deb
@@ -119,7 +119,7 @@ jobs:
         with: 
           submodules: true
       - name: Setup node
-        uses: actions/setup-node@v4.0.4
+        uses: actions/setup-node@v4.3.0
         with:
           node-version: 20.12.2
           cache: 'npm'
@@ -151,7 +151,7 @@ jobs:
       - name: Move app.tar.gz.sig
         run: mv "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz.sig" "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_desktop-universal.app.tar.gz.sig"
       - name: Upload tagged release
-        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda
         with:
           files: |
             src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_desktop-universal.dmg
