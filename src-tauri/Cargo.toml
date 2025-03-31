@@ -2,7 +2,7 @@
 
 [package]
 name = "cinny"
-version = "4.5.1"
+version = "4.6.0"
 description = "Yet another matrix client"
 authors = ["Ajay Bura"]
 license = "AGPL-3.0-only"
