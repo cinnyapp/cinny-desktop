@@ -12,6 +12,12 @@ fn main() {
     let port = 44548;
 
     let mut context = tauri::generate_context!();
+
+    // macOS "App Nap" periodically pauses our app when it's in the background.
+    // We need to prevent that so our intervals are not interrupted.
+    #[cfg(target_os = "macos")]
+    macos_app_nap::prevent();
+
     let url = format!("http://localhost:{}", port).parse().unwrap();
     let window_url = WindowUrl::External(url);
     // rewrite the config so the IPC is enabled on this URL
