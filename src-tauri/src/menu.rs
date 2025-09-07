@@ -5,10 +5,7 @@ pub(crate) fn menu() -> Menu {
         .add_submenu(Submenu::new(
             "Cinny",
             Menu::new()
-                .add_native_item(MenuItem::About(
-                    "Cinny".to_string(),
-                    AboutMetadata::new(),
-                ))
+                .add_native_item(MenuItem::About("Cinny".to_string(), AboutMetadata::new()))
                 .add_native_item(MenuItem::Separator)
                 .add_native_item(MenuItem::Hide)
                 .add_native_item(MenuItem::HideOthers)
@@ -29,8 +26,7 @@ pub(crate) fn menu() -> Menu {
         ))
         .add_submenu(Submenu::new(
             "View",
-            Menu::new()
-                .add_native_item(MenuItem::EnterFullScreen),
+            Menu::new().add_native_item(MenuItem::EnterFullScreen),
         ))
         .add_submenu(Submenu::new(
             "Window",
