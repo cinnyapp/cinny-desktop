@@ -22,7 +22,7 @@ fn main() {
     #[cfg(target_os = "macos")]
     let builder = builder.menu(menu::menu());
 
-    builder
+    builderaaa
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .run(context)
