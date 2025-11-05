@@ -13,12 +13,15 @@ fn main() {
 
     let builder = tauri::Builder::default();
 
-    #[cfg(target_os = "macos")]
-    let builder = builder.menu(menu::menu());
-
     builder
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .setup(|app| {
+            #[cfg(target_os = "macos")]
+            app.set_menu(menu::menu(app.handle())?)?;
+
+            Ok(())
+        })
         .run(context)
         .expect("error while building tauri application")
 }
