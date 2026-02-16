@@ -15,7 +15,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4.4.0
         with:
-          node-version: 20.12.2
+          node-version: 24.13.1
           cache: 'npm'
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -68,7 +68,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4.4.0
         with:
-          node-version: 20.12.2
+          node-version: 24.13.1
           cache: 'npm'
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -120,7 +120,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4.4.0
         with:
-          node-version: 20.12.2
+          node-version: 24.13.1
           cache: 'npm'
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
