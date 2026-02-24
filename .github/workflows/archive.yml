@@ -16,7 +16,7 @@ jobs:
           cd ..
           zip ${{ github.event.repository.name }}/${{ github.event.repository.name }}-${{ github.ref_name }}.zip ${{ github.event.repository.name }} -r
       - name: Upload zip to release
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836
+        uses: softprops/action-gh-release@e798e6a1ede8d07b74ac4cdac6bdfa4cc1653907
         with:
           files: |
             ${{ github.event.repository.name }}-${{ github.ref_name }}.zip
