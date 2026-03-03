@@ -27,10 +27,10 @@ jobs:
       with:
         node-version: 24.13.1
         cache: 'npm'
-    - name: Install Rust stable
-      uses: actions-rs/toolchain@v1.0.7
+    - name: install Rust stable
+      uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: stable
+        targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
     - name: Install dependencies (ubuntu only)
       if: matrix.platform == 'ubuntu-22.04'
       run: |
