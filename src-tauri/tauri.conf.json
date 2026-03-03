@@ -46,7 +46,7 @@
     "devUrl": "http://localhost:8080"
   },
   "productName": "Cinny",
-  "mainBinaryName": "Cinny",
+  "mainBinaryName": "cinny",
   "version": "4.10.5",
   "identifier": "in.cinny.app",
   "plugins": {
