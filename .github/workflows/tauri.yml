@@ -24,14 +24,12 @@ jobs:
       - name: Install tauri dependencies
         run: npm ci
       - name: Build desktop app with Tauri
-        uses: tauri-apps/tauri-action@v0.5.14
+        uses: tauri-apps/tauri-action@v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           NODE_OPTIONS: "--max_old_space_size=4096"
-        with:
-          releaseId: ${{ github.event.release.upload_url }}
       - name: Get app version (windows)
         run: |
           $json = (Get-Content "src-tauri\tauri.conf.json" -Raw) | ConvertFrom-Json
@@ -81,14 +79,12 @@ jobs:
       - name: Install tauri dependencies
         run: npm ci
       - name: Build desktop app with Tauri
-        uses: tauri-apps/tauri-action@v0.5.14
+        uses: tauri-apps/tauri-action@v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           NODE_OPTIONS: "--max_old_space_size=4096"
-        with:
-          releaseId: ${{ github.event.release.upload_url }}
       - name: Get app version
         id: vars
         run: echo "tag=$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')" >> $GITHUB_OUTPUT
@@ -125,20 +121,19 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          target: aarch64-apple-darwin,x86_64-apple-darwin
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
       - name: Install cinny dependencies
         run: cd cinny && npm ci
       - name: Install tauri dependencies
         run: npm ci
       - name: Build desktop app with Tauri
-        uses: tauri-apps/tauri-action@v0.5.14
+        uses: tauri-apps/tauri-action@v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           NODE_OPTIONS: "--max_old_space_size=4096"
         with:
-          releaseId: ${{ github.event.release.upload_url }}
           args: "--target universal-apple-darwin"
       - name: Get app version
         id: vars
