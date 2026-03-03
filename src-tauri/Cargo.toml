@@ -12,14 +12,22 @@ edition = "2021"
 rust-version = "1.61"
 
 [build-dependencies]
-tauri-build = { version = "1.5.5", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
 serde_json = "1.0.109"
 serde = { version = "1.0.193", features = ["derive"] }
-tauri = { version = "1.8.0", features = ["api-all", "devtools", "updater"] }
-tauri-plugin-localhost = "0.1.0"
-tauri-plugin-window-state = "0.1.1"
+tauri = { version = "2", features = [ "devtools"] }
+tauri-plugin-localhost = "2"
+tauri-plugin-window-state = "2"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-http = "2"
+tauri-plugin-process = "2"
+tauri-plugin-os = "2"
+tauri-plugin-dialog = "2"
 
 [features]
 # by default Tauri runs in production mode
@@ -28,3 +36,11 @@ default = [ "custom-protocol" ]
 # this feature is used used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
 custom-protocol = [ "tauri/custom-protocol" ]
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-updater = "2"
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
