@@ -1,16 +1,79 @@
 name: "Publish Tauri App"
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
 
 jobs:
+  semantic-release:
+    name: Trigger release
+    outputs:
+      version: ${{ steps.vars.outputs.tag }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Setup Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version-file: ".node-version"
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run semantic-release
+        run: npm run semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Get version from tag
+        id: vars
+        run: |
+          TAG=$(git describe --tags --abbrev=0) 
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+  zip-archive:
+    needs: semantic-release
+    env:
+      TAURI_VERSION: ${{ needs.semantic-release.outputs.version }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ env.TAURI_VERSION }}
+          fetch-depth: 0
+          submodules: true
+      - name: Create zip including submodules
+        run: |
+          cd ..
+          zip ${{ github.event.repository.name }}/${{ github.event.repository.name }}-${{ env.TAURI_VERSION }}.zip ${{ github.event.repository.name }} -r
+      - name: Upload zip to release
+        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
+        with:
+          tag_name: ${{ env.TAURI_VERSION }}
+          files: |
+            ${{ github.event.repository.name }}-${{ env.TAURI_VERSION }}.zip
+
   # Windows-x86_64
   windows-x86_64:
+    needs: semantic-release
+    env:
+      TAURI_VERSION: ${{ needs.semantic-release.outputs.version }}
     runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with: 
+          ref: ${{ env.TAURI_VERSION }}
+          fetch-depth: 0
           submodules: true
       - name: Setup node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -30,14 +93,6 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           NODE_OPTIONS: "--max_old_space_size=4096"
-      - name: Get app version (windows)
-        run: |
-          $json = (Get-Content "src-tauri\tauri.conf.json" -Raw) | ConvertFrom-Json
-          $version = $json.package.version
-          echo "Version: ${version}"
-          echo "TAURI_VERSION=${version}" >> $Env:GITHUB_ENV
-          echo "${Env:TAURI_VERSION}"
-        shell: pwsh
       - name: Move msi
         run: Move-Item "src-tauri\target\release\bundle\msi\Cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi" "src-tauri\target\release\bundle\msi\Cinny_desktop-x86_64.msi"
         shell: pwsh
@@ -50,6 +105,7 @@ jobs:
       - name: Upload tagged release
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
         with:
+          tag_name: ${{ env.TAURI_VERSION }}
           files: |
             src-tauri/target/release/bundle/msi/Cinny_desktop-x86_64.msi
             src-tauri/target/release/bundle/msi/Cinny_desktop-x86_64.msi.zip
@@ -57,11 +113,16 @@ jobs:
 
   # Linux-x86_64
   linux-x86_64:
+    needs: semantic-release
+    env:
+      TAURI_VERSION: ${{ needs.semantic-release.outputs.version }}
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with: 
+          ref: ${{ env.TAURI_VERSION }}
+          fetch-depth: 0
           submodules: true
       - name: Setup node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -85,20 +146,18 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           NODE_OPTIONS: "--max_old_space_size=4096"
-      - name: Get app version
-        id: vars
-        run: echo "tag=$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')" >> $GITHUB_OUTPUT
       - name: Move deb
-        run: mv "src-tauri/target/release/bundle/deb/Cinny_${{ steps.vars.outputs.tag }}_amd64.deb" "src-tauri/target/release/bundle/deb/Cinny_desktop-x86_64.deb"
+        run: mv "src-tauri/target/release/bundle/deb/Cinny_${{ env.TAURI_VERSION }}_amd64.deb" "src-tauri/target/release/bundle/deb/Cinny_desktop-x86_64.deb"
       - name: Move AppImage
-        run: mv "src-tauri/target/release/bundle/appimage/Cinny_${{ steps.vars.outputs.tag }}_amd64.AppImage" "src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage"
+        run: mv "src-tauri/target/release/bundle/appimage/Cinny_${{ env.TAURI_VERSION }}_amd64.AppImage" "src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage"
       - name: Move AppImage.tar.gz
-        run: mv "src-tauri/target/release/bundle/appimage/Cinny_${{ steps.vars.outputs.tag }}_amd64.AppImage.tar.gz" "src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage.tar.gz"
+        run: mv "src-tauri/target/release/bundle/appimage/Cinny_${{ env.TAURI_VERSION }}_amd64.AppImage.tar.gz" "src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage.tar.gz"
       - name: Move AppImage.tar.gz.sig
-        run: mv "src-tauri/target/release/bundle/appimage/Cinny_${{ steps.vars.outputs.tag }}_amd64.AppImage.tar.gz.sig" "src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage.tar.gz.sig"
+        run: mv "src-tauri/target/release/bundle/appimage/Cinny_${{ env.TAURI_VERSION }}_amd64.AppImage.tar.gz.sig" "src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage.tar.gz.sig"
       - name: Upload tagged release
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
         with:
+          tag_name: ${{ env.TAURI_VERSION }}
           files: |
             src-tauri/target/release/bundle/deb/Cinny_desktop-x86_64.deb
             src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage
@@ -107,11 +166,16 @@ jobs:
 
   # macos-universal
   macos-universal:
+    needs: semantic-release
+    env:
+      TAURI_VERSION: ${{ needs.semantic-release.outputs.version }}
     runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with: 
+          ref: ${{ env.TAURI_VERSION }}
+          fetch-depth: 0
           submodules: true
       - name: Setup node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -135,11 +199,8 @@ jobs:
           NODE_OPTIONS: "--max_old_space_size=4096"
         with:
           args: "--target universal-apple-darwin"
-      - name: Get app version
-        id: vars
-        run: echo "tag=$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')" >> $GITHUB_OUTPUT
       - name: Move dmg
-        run: mv "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_universal.dmg" "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_desktop-universal.dmg"
+        run: mv "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ env.TAURI_VERSION }}_universal.dmg" "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_desktop-universal.dmg"
       - name: Move app.tar.gz
         run: mv "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_desktop-universal.app.tar.gz"
       - name: Move app.tar.gz.sig
@@ -147,6 +208,7 @@ jobs:
       - name: Upload tagged release
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
         with:
+          tag_name: ${{ env.TAURI_VERSION }}
           files: |
             src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_desktop-universal.dmg
             src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_desktop-universal.app.tar.gz
@@ -156,10 +218,16 @@ jobs:
   release-update:
     if: always()
     needs: [windows-x86_64, linux-x86_64, macos-universal]
+    env:
+      TAURI_VERSION: ${{ needs.semantic-release.outputs.version }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with: 
+          ref: ${{ env.TAURI_VERSION }}
+          fetch-depth: 0
+          submodules: true
       - name: Install dependencies
         run: npm ci
       - name: Run release.json
