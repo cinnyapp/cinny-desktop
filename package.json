@@ -8,7 +8,53 @@
   },
   "scripts": {
     "tauri": "cp config.json cinny/ && tauri",
-    "release": "node scripts/release.mjs"
+    "release": "node scripts/release.mjs",
+    "lint": "npm run check:eslint && npm run check:prettier",
+    "check:eslint": "eslint src/*",
+    "check:prettier": "prettier --check .",
+    "fix:prettier": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky install",
+    "commit": "git-cz",
+    "semantic-release": "semantic-release"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": "eslint",
+    "*": "prettier --ignore-unknown --write"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/exec",
+        {
+          "prepareCmd": "node scripts/update-version.js ${nextRelease.version}"
+        }
+      ],
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "package.json",
+            "package-lock.json",
+            "src-tauri/Cargo.lock",
+            "src-tauri/Cargo.toml",
+            "src-tauri/tauri.conf.json"
+          ],
+          "message": "chore(release): ${nextRelease.version} [skip ci]"
+        }
+      ],
+      "@semantic-release/github"
+    ]
   },
   "keywords": [],
   "author": "Ajay Bura",
@@ -28,7 +74,13 @@
   },
   "devDependencies": {
     "@actions/github": "6.0.0",
+    "@semantic-release/exec": "7.1.0",
+    "@semantic-release/git": "10.0.1",
     "@tauri-apps/cli": "2.7.1",
-    "node-fetch": "3.3.2"
+    "cz-conventional-changelog": "3.3.0",
+    "husky": "9.1.7",
+    "lint-staged": "16.3.2",
+    "node-fetch": "3.3.2",
+    "semantic-release": "25.0.3"
   }
 }
