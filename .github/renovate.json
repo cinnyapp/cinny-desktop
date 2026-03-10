@@ -2,16 +2,13 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    ":dependencyDashboardApproval"
+    ":dependencyDashboardApproval",
+    ":semanticCommits"
   ],
-  "labels": [
-    "Dependencies"
-  ],
+  "labels": ["Dependencies"],
   "packageRules": [
     {
-      "matchUpdateTypes": [
-        "lockFileMaintenance"
-      ]
+      "matchUpdateTypes": ["lockFileMaintenance"]
     }
   ],
   "lockFileMaintenance": {
