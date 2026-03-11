@@ -59,19 +59,7 @@
   },
   "app": {
     "security": {
-      "csp": "script-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'; connect-src ipc: http://ipc.localhost"
-    },
-    "windows": [
-      {
-        "title": "Cinny",
-        "width": 1280,
-        "height": 905,
-        "center": true,
-        "resizable": true,
-        "fullscreen": false,
-        "dragDropEnabled": false,
-        "useHttpsScheme": true
-      }
-    ]
+      "csp": "default-src 'self' blob: data: filesystem: ws: wss: http: https: tauri:; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: data: filesystem: ws: wss: http: https: tauri:; img-src 'self' data: blob: filesystem: http: https:; connect-src 'self' ipc: ws: wss: http: https: http://ipc.localhost"
+    }
   }
 }
