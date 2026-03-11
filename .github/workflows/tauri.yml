@@ -33,7 +33,7 @@ jobs:
       - name: Get app version (windows)
         run: |
           $json = (Get-Content "src-tauri\tauri.conf.json" -Raw) | ConvertFrom-Json
-          $version = $json.package.version
+          $version = $json.version
           echo "Version: ${version}"
           echo "TAURI_VERSION=${version}" >> $Env:GITHUB_ENV
           echo "${Env:TAURI_VERSION}"
@@ -87,7 +87,7 @@ jobs:
           NODE_OPTIONS: "--max_old_space_size=4096"
       - name: Get app version
         id: vars
-        run: echo "tag=$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')" >> $GITHUB_OUTPUT
+        run: echo "tag=$(jq .version src-tauri/tauri.conf.json | tr -d '"')" >> $GITHUB_OUTPUT
       - name: Move deb
         run: mv "src-tauri/target/release/bundle/deb/Cinny_${{ steps.vars.outputs.tag }}_amd64.deb" "src-tauri/target/release/bundle/deb/Cinny_desktop-x86_64.deb"
       - name: Move AppImage
@@ -137,7 +137,7 @@ jobs:
           args: "--target universal-apple-darwin"
       - name: Get app version
         id: vars
-        run: echo "tag=$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')" >> $GITHUB_OUTPUT
+        run: echo "tag=$(jq .version src-tauri/tauri.conf.json | tr -d '"')" >> $GITHUB_OUTPUT
       - name: Move dmg
         run: mv "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_universal.dmg" "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_desktop-universal.dmg"
       - name: Move app.tar.gz
