@@ -37,7 +37,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "node scripts/update-version.js ${nextRelease.version}"
+          "prepareCmd": "node scripts/update-version.mjs ${nextRelease.version}"
         }
       ],
       [
@@ -46,7 +46,6 @@
           "assets": [
             "package.json",
             "package-lock.json",
-            "src-tauri/Cargo.lock",
             "src-tauri/Cargo.toml",
             "src-tauri/tauri.conf.json"
           ],
