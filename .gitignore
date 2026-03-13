@@ -1,5 +1,6 @@
 experiment
 dist
+src-tauri/gen
 node_modules
 devAssets
 
