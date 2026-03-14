@@ -42,24 +42,35 @@ To start local dev server, run:
 
 This project uses `cinny` as a git submodule pointing to [cinny-i18n](https://github.com/zhao-wuyan/cinny-i18n).
 
-### Update Submodule
+> **Note**: Submodules are **NOT** automatically updated. They are pinned to a specific commit. You must manually update when needed.
 
+### Update Submodule to Latest
+
+**Method 1: Quick update (recommended)**
 ```bash
-# Update cinny submodule to latest
-cd cinny
-git fetch origin
-git checkout origin/master
-cd ..
-
-# Commit the update
+git submodule update --remote cinny
 git add cinny
 git commit -m "chore: update cinny submodule"
 ```
 
-### Initialize Submodule (for existing clone)
+**Method 2: Manual update**
+```bash
+cd cinny
+git fetch origin
+git checkout origin/master
+cd ..
+git add cinny
+git commit -m "chore: update cinny submodule"
+```
 
-If you cloned without `--recursive`, initialize the submodule:
+### Initialize Submodule
 
+**For new clone with `--recursive`:**
+```bash
+git clone --recursive https://github.com/zhao-wuyan/cinny-desktop.git
+```
+
+**For existing clone without submodule:**
 ```bash
 git submodule update --init cinny
 ```
