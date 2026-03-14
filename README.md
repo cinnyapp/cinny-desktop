@@ -37,3 +37,29 @@ To build the app locally, run:
 
 To start local dev server, run:
 * `npm run tauri dev`
+
+## Submodule Management
+
+This project uses `cinny` as a git submodule pointing to [cinny-i18n](https://github.com/zhao-wuyan/cinny-i18n).
+
+### Update Submodule
+
+```bash
+# Update cinny submodule to latest
+cd cinny
+git fetch origin
+git checkout origin/master
+cd ..
+
+# Commit the update
+git add cinny
+git commit -m "chore: update cinny submodule"
+```
+
+### Initialize Submodule (for existing clone)
+
+If you cloned without `--recursive`, initialize the submodule:
+
+```bash
+git submodule update --init cinny
+```
