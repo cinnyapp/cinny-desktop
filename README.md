@@ -48,19 +48,34 @@ This project uses `cinny` as a git submodule pointing to [cinny-i18n](https://gi
 
 **Method 1: Quick update (recommended)**
 ```bash
+# Pull latest commit from remote
 git submodule update --remote cinny
 git add cinny
 git commit -m "chore: update cinny submodule"
 ```
 
-**Method 2: Manual update**
+**Method 2: Merge/Rebase mode (for local changes)**
+```bash
+# Merge mode
+git submodule update --remote --merge cinny
+
+# Rebase mode
+git submodule update --remote --rebase cinny
+```
+
+**Method 3: Manual update**
 ```bash
 cd cinny
-git fetch origin
-git checkout origin/master
+git checkout main
+git pull origin main
 cd ..
 git add cinny
 git commit -m "chore: update cinny submodule"
+```
+
+**One-liner (complete flow):**
+```bash
+git submodule update --remote --merge cinny && git add cinny && git commit -m "chore: update cinny submodule"
 ```
 
 ### Initialize Submodule

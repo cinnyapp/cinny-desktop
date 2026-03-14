@@ -6,3 +6,4 @@ devAssets
 .DS_Store
 .tauri/
 .ace-tool/
+.idea/
