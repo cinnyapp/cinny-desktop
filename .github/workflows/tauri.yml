@@ -2,6 +2,7 @@ name: "Publish Tauri App"
 on:
   release:
     types: [published]
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   # Windows-x86_64
