@@ -1,3 +1,4 @@
 [submodule "cinny"]
 	path = cinny
 	url = https://github.com/zhao-wuyan/cinny-i18n
+	branch = feature/mulact
