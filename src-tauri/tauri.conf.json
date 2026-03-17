@@ -59,7 +59,7 @@
   },
   "app": {
     "security": {
-      "csp": "default-src 'self' blob: data: filesystem: ws: wss: http: https: tauri:; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: data: filesystem: ws: wss: http: https: tauri:; img-src 'self' data: blob: filesystem: http: https:; connect-src 'self' ipc: ws: wss: http: https: http://ipc.localhost"
+      "csp": "default-src 'self' blob: data: filesystem: ws: wss: http: https: tauri:; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: data: filesystem: ws: wss: http: https: tauri:; img-src 'self' data: blob: filesystem: http: https:; connect-src 'self' blob: ipc: ws: wss: http: https: http://ipc.localhost"
     }
   }
 }
