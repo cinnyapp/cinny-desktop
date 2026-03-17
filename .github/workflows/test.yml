@@ -40,16 +40,21 @@ jobs:
       run: cd cinny && npm ci
     - name: Install tauri dependencies
       run: npm ci
-    - name: Disable Updater for Fork PRs
-      if: github.event.pull_request.head.repo.fork == true
-      run: |
-        echo "TAURI_CONFIG={\"plugins\": {\"updater\": {\"pubkey\": \"\"}}}" >> $GITHUB_ENV
-    - name: Build desktop app with Tauri
+    - name: Build desktop app with Tauri (non-fork)
+      if: github.event.pull_request.head.repo.fork != true
       uses: tauri-apps/tauri-action@73fb865345c54760d875b94642314f8c0c894afa # v0.6.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-        # TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         NODE_OPTIONS: "--max_old_space_size=4096"
       with:
           args: ${{ matrix.args }}
+    - name: Build desktop app with Tauri (fork)
+      if: github.event.pull_request.head.repo.fork == true
+      uses: tauri-apps/tauri-action@73fb865345c54760d875b94642314f8c0c894afa # v0.6.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NODE_OPTIONS: "--max_old_space_size=4096"
+      with:
+          args: ${{ matrix.args }} --config '{"bundle":{"createUpdaterArtifacts":false}}'
