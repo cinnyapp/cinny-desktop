@@ -77,6 +77,10 @@
     "clipboard-manager:allow-write-text",
     "core:app:allow-app-show",
     "core:app:allow-app-hide",
-    "clipboard-manager:default"
+    "clipboard-manager:default",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [{ "url": "http://*" }, { "url": "https://*" }]
+    }
   ]
 }
