@@ -70,7 +70,8 @@
         "resizable": true,
         "fullscreen": false,
         "dragDropEnabled": false,
-        "useHttpsScheme": true
+        "useHttpsScheme": true,
+        "devtools": true
       }
     ]
   }
