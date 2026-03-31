@@ -1,0 +1,20 @@
+diff --git a/src/app/hooks/useFilePasteHandler.ts b/src/app/hooks/useFilePasteHandler.ts
+index 0f63b75..ced410e 100644
+--- a/src/app/hooks/useFilePasteHandler.ts
++++ b/src/app/hooks/useFilePasteHandler.ts
+@@ -3,7 +3,14 @@ import { getDataTransferFiles } from '../utils/dom';
+ 
+ export const useFilePasteHandler = (onPaste: (file: File[]) => void): ClipboardEventHandler =>
+   useCallback(
+-    (evt) => {
++    async (evt) => {
++      if (window.__TAURI__) {
++        const b64Image = await window.__TAURI__.core.invoke('paste_file');
++        if (b64Image)
++          onPaste([
++            new File([Uint8Array.fromBase64(b64Image)], 'image.png', { type: 'image/png' }),
++          ]);
++      }
+       const files = getDataTransferFiles(evt.clipboardData);
+       if (files) onPaste(files);
+     },

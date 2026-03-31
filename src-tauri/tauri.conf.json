@@ -40,7 +40,7 @@
     "createUpdaterArtifacts": "v1Compatible"
   },
   "build": {
-    "beforeBuildCommand": "cd cinny && npm run build",
+    "beforeBuildCommand": "cd cinny; git apply ../patches/*.patch; npm run build",
     "frontendDist": "../cinny/dist",
     "beforeDevCommand": "cd cinny && npm start",
     "devUrl": "http://localhost:8080"
@@ -60,6 +60,7 @@
   "app": {
     "security": {
       "csp": "default-src 'self' blob: data: filesystem: ws: wss: http: https: tauri:; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: data: filesystem: ws: wss: http: https: tauri:; img-src 'self' data: blob: filesystem: http: https:; connect-src 'self' blob: ipc: ws: wss: http: https: http://ipc.localhost"
-    }
+    },
+    "withGlobalTauri": true
   }
 }
