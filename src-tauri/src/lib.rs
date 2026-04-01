@@ -34,6 +34,7 @@ pub fn run() {
 
             WebviewWindowBuilder::new(app, "main".to_string(), window_url)
                 .title("Cinny")
+                .disable_drag_drop_handler()
                 .build()?;
             Ok(())
         })
