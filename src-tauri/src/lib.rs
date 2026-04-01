@@ -3,6 +3,7 @@
     windows_subsystem = "windows"
 )]
 
+mod clipboard;
 // mod menu;
 
 use tauri::{webview::WebviewWindowBuilder, WebviewUrl};
@@ -20,6 +21,7 @@ pub fn run() {
     builder
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .invoke_handler(tauri::generate_handler![clipboard::paste_file])
         .setup(move |app| {
             // Dev: use devUrl from tauri.conf.json (http://localhost:8080) to support HMR
             #[cfg(debug_assertions)]
