@@ -5,7 +5,8 @@
 
 // mod menu;
 
-use tauri::{webview::WebviewWindowBuilder, WebviewUrl};
+use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, WebviewUrl};
+use tauri_plugin_opener::OpenerExt;
 
 pub fn run() {
     let port: u16 = 44548;
@@ -33,8 +34,13 @@ pub fn run() {
                 WebviewUrl::External(url)
             };
 
+            let app_handle = app.handle().clone();
             WebviewWindowBuilder::new(app, "main".to_string(), window_url)
                 .title("Cinny")
+                .on_new_window(move |url, _features| {
+                    let _ = app_handle.opener().open_url(url.as_str(), None::<&str>);
+                    NewWindowResponse::Deny
+                })
                 .build()?;
             Ok(())
         })
