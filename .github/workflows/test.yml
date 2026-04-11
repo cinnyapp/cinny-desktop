@@ -71,8 +71,12 @@ jobs:
 
     - name: Upload build artifacts
       if: steps.collect.outputs.paths != ''
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: release-artifacts-${{ matrix.platform }}
-        path: ${{ steps.collect.outputs.paths }}
-        retention-days: 7
+      run: |
+        mapfile -t files < artifact-paths.txt
+        if [ ${#files[@]} -eq 0 ]; then
+          echo "No artifacts to upload"
+          exit 0
+        fi
+        printf "Uploading:\n%s\n" "${files[@]}"
+        npx -y @actions/artifact-cli upload --name "release-artifacts-${{ matrix.platform }}" "${files[@]}"
+      shell: bash
