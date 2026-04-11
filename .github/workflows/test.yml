@@ -44,8 +44,39 @@ jobs:
       uses: tauri-apps/tauri-action@73fb865345c54760d875b94642314f8c0c894afa # v0.6.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-        # TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         NODE_OPTIONS: "--max_old_space_size=4096"
       with:
           args: ${{ matrix.args }} --config '{"bundle":{"createUpdaterArtifacts":false}}'
+    - name: Find existing artifacts
+      shell: bash
+      id: collect
+      run: |
+        files=()
+        for p in \
+          "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app" \
+          "src-tauri/target/release/bundle/deb/Cinny_4.11.2_amd64.deb" \
+          "src-tauri/target/release/bundle/rpm/Cinny-4.11.2-1.x86_64.rpm" \
+          "src-tauri/target/release/bundle/appimage/Cinny_4.11.2_amd64.AppImage" \
+          "src-tauri/target/release/bundle/msi/Cinny_4.11.2_x64_en-US.msi" \
+          "src-tauri/target/release/bundle/nsis/Cinny_4.11.2_x64-setup.exe"; do
+          if [ -e "$p" ]; then files+=("$p"); fi
+        done
+        if [ ${#files[@]} -eq 0 ]; then
+          echo "No artifacts found, skipping upload." > /tmp/no-artifacts
+          echo "::set-output name=paths::"
+        else
+          printf "%s\n" "${files[@]}" > artifact-paths.txt
+          echo "::set-output name=paths::artifact-paths.txt"
+        fi
+
+    - name: Upload build artifacts
+      if: steps.collect.outputs.paths != ''
+      run: |
+        mapfile -t files < artifact-paths.txt
+        if [ ${#files[@]} -eq 0 ]; then
+          echo "No artifacts to upload"
+          exit 0
+        fi
+        printf "Uploading:\n%s\n" "${files[@]}"
+        npx -y @actions/artifact-cli upload --name "release-artifacts-${{ matrix.platform }}" "${files[@]}"
+      shell: bash
