@@ -22,11 +22,12 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .setup(move |app| {
             // Dev: use devUrl from tauri.conf.json (http://localhost:8080) to support HMR
-            #[cfg(debug_assertions)]
+            #[cfg(dev)]
             let window_url = WebviewUrl::App(Default::default());
 
             // Release: tauri-plugin-localhost serves bundled frontend assets on this port
-            #[cfg(not(debug_assertions))]
+            // Default would be http://tauri.localhost or tauri://localhost depending on platform
+            #[cfg(not(dev))]
             let window_url = {
                 let url = format!("http://localhost:{}", port).parse().unwrap();
                 WebviewUrl::External(url)
