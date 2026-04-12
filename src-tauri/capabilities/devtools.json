@@ -1,0 +1,9 @@
+{
+    "identifier": "devtools",
+    "description": "Enables keyboard shortcut for devtools (ctrl+shift+i)",
+    "windows": ["main"],
+    "remote": {
+        "urls": ["http://localhost:*"]
+    },
+    "permissions": ["core:webview:allow-internal-toggle-devtools"]
+}
