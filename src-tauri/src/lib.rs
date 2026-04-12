@@ -21,20 +21,31 @@ pub fn run() {
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .setup(move |app| {
+            // Use predefined config
+            let mut window_config = app
+                .config()
+                .app
+                .windows
+                .iter()
+                .find(|c| c.label == "main")
+                .unwrap()
+                .clone();
+
             // Dev: use devUrl from tauri.conf.json (http://localhost:8080) to support HMR
-            #[cfg(debug_assertions)]
+            #[cfg(dev)]
             let window_url = WebviewUrl::App(Default::default());
 
             // Release: tauri-plugin-localhost serves bundled frontend assets on this port
-            #[cfg(not(debug_assertions))]
+            // Default would be http://tauri.localhost or tauri://localhost depending on platform
+            #[cfg(not(dev))]
             let window_url = {
                 let url = format!("http://localhost:{}", port).parse().unwrap();
                 WebviewUrl::External(url)
             };
 
-            WebviewWindowBuilder::new(app, "main".to_string(), window_url)
-                .title("Cinny")
-                .build()?;
+            window_config.url = window_url;
+
+            WebviewWindowBuilder::from_config(app, &window_config)?.build()?;
             Ok(())
         })
         .run(context)
