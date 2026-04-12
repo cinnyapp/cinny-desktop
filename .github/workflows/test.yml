@@ -47,36 +47,32 @@ jobs:
         NODE_OPTIONS: "--max_old_space_size=4096"
       with:
           args: ${{ matrix.args }} --config '{"bundle":{"createUpdaterArtifacts":false}}'
-    - name: Find existing artifacts
-      shell: bash
-      id: collect
-      run: |
-        files=()
-        for p in \
-          "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app" \
-          "src-tauri/target/release/bundle/deb/Cinny_4.11.2_amd64.deb" \
-          "src-tauri/target/release/bundle/rpm/Cinny-4.11.2-1.x86_64.rpm" \
-          "src-tauri/target/release/bundle/appimage/Cinny_4.11.2_amd64.AppImage" \
-          "src-tauri/target/release/bundle/msi/Cinny_4.11.2_x64_en-US.msi" \
-          "src-tauri/target/release/bundle/nsis/Cinny_4.11.2_x64-setup.exe"; do
-          if [ -e "$p" ]; then files+=("$p"); fi
-        done
-        if [ ${#files[@]} -eq 0 ]; then
-          echo "No artifacts found, skipping upload." > /tmp/no-artifacts
-          echo "::set-output name=paths::"
-        else
-          printf "%s\n" "${files[@]}" > artifact-paths.txt
-          echo "::set-output name=paths::artifact-paths.txt"
-        fi
+    - name: Upload macOS artifacts
+      if: matrix.platform == 'macos-latest'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: release-artifacts-macos
+        path: |
+          src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny*.app
+        if-no-files-found: warn
 
-    - name: Upload build artifacts
-      if: steps.collect.outputs.paths != ''
-      run: |
-        mapfile -t files < artifact-paths.txt
-        if [ ${#files[@]} -eq 0 ]; then
-          echo "No artifacts to upload"
-          exit 0
-        fi
-        printf "Uploading:\n%s\n" "${files[@]}"
-        npx -y @actions/artifact-cli upload --name "release-artifacts-${{ matrix.platform }}" "${files[@]}"
-      shell: bash
+    - name: Upload Linux artifacts
+      if: matrix.platform == 'ubuntu-22.04'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: release-artifacts-linux
+        path: |
+          src-tauri/target/release/bundle/deb/Cinny_*.deb
+          src-tauri/target/release/bundle/rpm/Cinny-*.rpm
+          src-tauri/target/release/bundle/appimage/Cinny_*.AppImage
+        if-no-files-found: warn
+
+    - name: Upload Windows artifacts
+      if: matrix.platform == 'windows-latest'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: release-artifacts-windows
+        path: |
+          src-tauri/target/release/bundle/msi/Cinny_*_x64_*.msi
+          src-tauri/target/release/bundle/nsis/Cinny_*_x64-setup.exe
+        if-no-files-found: warn
