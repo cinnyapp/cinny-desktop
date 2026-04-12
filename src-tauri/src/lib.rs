@@ -22,7 +22,14 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .setup(move |app| {
             // Use predefined config
-            let mut window_config = app.config().app.windows.iter().find(|c| c.label == "main").unwrap().clone();
+            let mut window_config = app
+                .config()
+                .app
+                .windows
+                .iter()
+                .find(|c| c.label == "main")
+                .unwrap()
+                .clone();
 
             // Dev: use devUrl from tauri.conf.json (http://localhost:8080) to support HMR
             #[cfg(dev)]
