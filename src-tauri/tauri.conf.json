@@ -40,7 +40,7 @@
     "createUpdaterArtifacts": "v1Compatible"
   },
   "build": {
-    "beforeBuildCommand": "cd cinny; git apply ../patches/*.patch; npm run build",
+    "beforeBuildCommand": "bash -c \"cd cinny; git apply ../patches/*.patch; npm run build\"",
     "frontendDist": "../cinny/dist",
     "beforeDevCommand": "cd cinny && npm start",
     "devUrl": "http://localhost:8080"
