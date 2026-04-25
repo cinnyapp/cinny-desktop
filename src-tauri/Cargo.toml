@@ -31,6 +31,7 @@ tauri-plugin-dialog = "2"
 arboard = { version = "3.3.2", features = ["wayland-data-control"] }
 base64 = "0.22.1"
 image = "0.24.8"
+tauri-plugin-opener = "2"
 
 [features]
 # by default Tauri runs in production mode
