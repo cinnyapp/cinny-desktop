@@ -28,6 +28,7 @@ Firstly, to setup Rust, NodeJS and build tools follow [Tauri documentation](http
 Now, to setup development locally run the following commands:
 * `git clone --recursive https://github.com/cinnyapp/cinny-desktop.git`
 * `cd cinny-desktop/cinny`
+* `git apply ../patches/*.patch`
 * `npm ci`
 * `cd ..`
 * `npm ci`
