@@ -8,7 +8,8 @@
   },
   "scripts": {
     "tauri": "cp config.json cinny/ && tauri",
-    "release": "node scripts/release.mjs"
+    "release": "node scripts/release.mjs",
+    "bump": "node scripts/update-version.mjs"
   },
   "keywords": [],
   "author": "Ajay Bura",
