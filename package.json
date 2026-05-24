@@ -7,7 +7,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "tauri": "cp config.json cinny/ && tauri",
+    "tauri": "shx cp config.json cinny/ && tauri",
     "release": "node scripts/release.mjs",
     "bump": "node scripts/update-version.mjs"
   },
@@ -30,6 +30,7 @@
   "devDependencies": {
     "@actions/github": "6.0.0",
     "@tauri-apps/cli": "2.7.1",
-    "node-fetch": "3.3.2"
+    "node-fetch": "3.3.2",
+    "shx": "0.4.0"
   }
 }
