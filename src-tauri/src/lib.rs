@@ -7,6 +7,7 @@
 
 use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, WebviewUrl};
 use tauri_plugin_opener::OpenerExt;
+use tauri_plugin_updater::UpdaterExt;
 
 pub fn run() {
     let port: u16 = 44548;
@@ -19,10 +20,18 @@ pub fn run() {
     // }
 
     builder
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
         .setup(move |app| {
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                if let Ok(Some(update)) = handle.updater().unwrap().check().await {
+                    let _ = update.download_and_install(|_, _| {}, || {}).await;
+                }
+            });
+
             // Dev: use devUrl from tauri.conf.json (http://localhost:8080) to support HMR
             #[cfg(debug_assertions)]
             let window_url = WebviewUrl::App(Default::default());
