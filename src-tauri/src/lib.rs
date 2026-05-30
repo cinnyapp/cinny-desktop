@@ -8,6 +8,7 @@
 use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, WebviewUrl};
 use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_updater::UpdaterExt;
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
 pub fn run() {
     let port: u16 = 44548;
@@ -21,6 +22,7 @@ pub fn run() {
 
     builder
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
@@ -28,7 +30,24 @@ pub fn run() {
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
                 if let Ok(Some(update)) = handle.updater().unwrap().check().await {
-                    let _ = update.download_and_install(|_, _| {}, || {}).await;
+                    let version = update.version.clone();
+                    
+                    let should_update = handle
+                        .dialog()
+                        .message(format!(
+                            "Version {} is available.\n\nWould you like to update now?",
+                            version
+                        ))
+                        .title("Update Available")
+                        .kind(MessageDialogKind::Info)
+                        .buttons(MessageDialogButtons::YesNo)
+                        .blocking_show();
+
+                    if should_update {
+                        if update.download_and_install(|_, _| {}, || {}).await.is_ok() {
+                            handle.restart();
+                        }
+                    }
                 }
             });
 
