@@ -46,17 +46,19 @@ console.log("Updating cinny web submodule");
 
 execSync("git submodule update --init --recursive", { stdio: "inherit" });
 
-execSync("cd cinny && git fetch --tags", { stdio: "inherit" });
+execSync("git fetch --tags", { cwd: "cinny", stdio: "inherit" });
 
-const latestTag = execSync(
-  "cd cinny && git describe --tags $(git rev-list --tags --max-count=1)"
-)
-  .toString()
-  .trim();
+const latestCommit = execSync("git rev-list --tags --max-count=1", {
+  cwd: "cinny",
+}).toString().trim();
+
+const latestTag = execSync(`git describe --tags ${latestCommit}`, {
+  cwd: "cinny",
+}).toString().trim();
 
 console.log(`Latest cinny tag: ${latestTag}`);
 
-execSync(`cd cinny && git checkout ${latestTag}`, { stdio: "inherit" });
+execSync(`git checkout ${latestTag}`, { cwd: "cinny", stdio: "inherit" });
 
 execSync("git add cinny", { stdio: "inherit" });
 
