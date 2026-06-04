@@ -17,7 +17,7 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 serde_json = "1.0.109"
 serde = { version = "1.0.193", features = ["derive"] }
-tauri = { version = "2", features = [ "devtools"] }
+tauri = { version = "2", features = ["devtools"] }
 tauri-plugin-localhost = "2"
 tauri-plugin-window-state = "2"
 tauri-plugin-clipboard-manager = "2"
@@ -29,14 +29,17 @@ tauri-plugin-process = "2"
 tauri-plugin-os = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-opener = "2"
+arboard = { version = "3.3.2", features = ["wayland-data-control"] }
+base64 = "0.22.1"
+image = "0.24.8"
 
 [features]
 # by default Tauri runs in production mode
 # when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
-default = [ "custom-protocol" ]
+default = ["custom-protocol"]
 # this feature is used used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
-custom-protocol = [ "tauri/custom-protocol" ]
+custom-protocol = ["tauri/custom-protocol"]
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"
