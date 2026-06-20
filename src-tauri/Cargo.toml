@@ -12,23 +12,23 @@ edition = "2021"
 rust-version = "1.61"
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { version = "2.6.2", features = [] }
 
 [dependencies]
 serde_json = "1.0.109"
 serde = { version = "1.0.193", features = ["derive"] }
-tauri = { version = "2", features = [ "devtools"] }
-tauri-plugin-localhost = "2"
-tauri-plugin-window-state = "2"
-tauri-plugin-clipboard-manager = "2"
-tauri-plugin-notification = "2"
-tauri-plugin-fs = "2"
-tauri-plugin-shell = "2"
-tauri-plugin-http = "2"
-tauri-plugin-process = "2"
-tauri-plugin-os = "2"
-tauri-plugin-dialog = "2"
-tauri-plugin-opener = "2"
+tauri = { version = "2.11.2", features = [ "devtools"] }
+tauri-plugin-localhost = "2.3.2"
+tauri-plugin-window-state = "2.4.1"
+tauri-plugin-clipboard-manager = "2.3.2"
+tauri-plugin-notification = "2.3.3"
+tauri-plugin-fs = "2.5.1"
+tauri-plugin-shell = "2.3.5"
+tauri-plugin-http = "2.5.9"
+tauri-plugin-process = "2.3.1"
+tauri-plugin-os = "2.3.2"
+tauri-plugin-dialog = "2.7.1"
+tauri-plugin-opener = "2.5.4"
 
 [features]
 # by default Tauri runs in production mode
@@ -39,8 +39,8 @@ default = [ "custom-protocol" ]
 custom-protocol = [ "tauri/custom-protocol" ]
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-global-shortcut = "2"
-tauri-plugin-updater = "2"
+tauri-plugin-global-shortcut = "2.3.2"
+tauri-plugin-updater = { version = "2.10.1", features = ["rustls-tls"] }
 
 [lib]
 name = "app_lib"
