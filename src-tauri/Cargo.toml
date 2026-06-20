@@ -42,6 +42,16 @@ custom-protocol = [ "tauri/custom-protocol" ]
 tauri-plugin-global-shortcut = "2.3.2"
 tauri-plugin-updater = { version = "2.10.1", features = ["rustls-tls"] }
 
+# Native StatusNotifierItem tray on Linux (proper left-click Activate, which
+# Tauri's libayatana-appindicator backend cannot deliver). See src/tray_linux.rs.
+[target.'cfg(target_os = "linux")'.dependencies]
+ksni = "0.2"
+
+# Desktop platforms other than Linux use Tauri's built-in tray. Enabling the
+# tray-icon feature only here keeps libappindicator out of the Linux build.
+[target.'cfg(not(any(target_os = "linux", target_os = "android", target_os = "ios")))'.dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+
 [lib]
 name = "app_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]

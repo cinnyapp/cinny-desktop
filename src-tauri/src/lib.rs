@@ -4,6 +4,10 @@
 )]
 
 // mod menu;
+#[cfg(not(target_os = "linux"))]
+mod tray;
+#[cfg(target_os = "linux")]
+mod tray_linux;
 
 use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, WebviewUrl};
 use tauri_plugin_opener::OpenerExt;
@@ -63,7 +67,7 @@ pub fn run() {
             };
 
             let app_handle = app.handle().clone();
-            WebviewWindowBuilder::new(app, "main".to_string(), window_url)
+            let window = WebviewWindowBuilder::new(app, "main".to_string(), window_url)
                 .title("Cinny")
                 .disable_drag_drop_handler()
                 .on_new_window(move |url, _features| {
@@ -71,6 +75,21 @@ pub fn run() {
                     NewWindowResponse::Deny
                 })
                 .build()?;
+
+            // Close to tray: hide the window instead of quitting the app.
+            let win = window.clone();
+            window.on_window_event(move |event| {
+                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                    let _ = win.hide();
+                }
+            });
+
+            #[cfg(not(target_os = "linux"))]
+            tray::build(app.handle())?;
+            #[cfg(target_os = "linux")]
+            tray_linux::build(app.handle().clone());
+
             Ok(())
         })
         .run(context)
