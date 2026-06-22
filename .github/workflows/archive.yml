@@ -18,5 +18,6 @@ jobs:
       - name: Upload zip to release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
+          tag_name: ${{ github.ref_name }}
           files: |
             ${{ github.event.repository.name }}-${{ github.ref_name }}.zip
