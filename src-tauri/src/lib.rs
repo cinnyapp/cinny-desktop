@@ -5,10 +5,23 @@
 
 // mod menu;
 
-use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, WebviewUrl};
+use tauri::{
+    webview::{NewWindowResponse, WebviewWindowBuilder},
+    WebviewUrl,
+};
 use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_updater::UpdaterExt;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
+
+const REQUEST_NOTIFICATION_PERMISSION_JS: &str = r#"
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      if (window.Notification && typeof window.Notification.requestPermission === 'function') {
+        window.Notification.requestPermission().catch(() => {});
+      }
+    } catch (e) { console.log(e) }
+  });
+  "#;
 
 pub fn run() {
     let port: u16 = 44548;
@@ -26,6 +39,7 @@ pub fn run() {
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_notification::init())
         .setup(move |app| {
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
@@ -71,6 +85,7 @@ pub fn run() {
             WebviewWindowBuilder::new(app, "main".to_string(), window_url)
                 .title("Cinny")
                 .disable_drag_drop_handler()
+                .initialization_script(REQUEST_NOTIFICATION_PERMISSION_JS)
                 .on_new_window(move |url, _features| {
                     let _ = app_handle.opener().open_url(url.as_str(), None::<&str>);
                     NewWindowResponse::Deny
