@@ -29,7 +29,12 @@ pub fn run() {
         .setup(move |app| {
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
-                if let Ok(Some(update)) = handle.updater().unwrap().check().await {
+                let updater = match handle.updater() {
+                    Ok(u) => u,
+                    Err(_) => return, // for updater not configured (e.g. Flatpak)
+                };
+
+                if let Ok(Some(update)) = updater.check().await {
                     let version = update.version.clone();
                     
                     let should_update = handle
