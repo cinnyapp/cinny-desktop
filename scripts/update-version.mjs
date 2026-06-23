@@ -15,7 +15,7 @@ console.log(`Preparing release ${version}`);
 execSync(`npm version ${version} --no-git-tag-version`, {
   stdio: "inherit"
 });
-console.log(`Updated package.json and package-lock.json → ${version}`);
+console.log(`Updated package.json and package-lock.json -> ${version}`);
 
 // 2. Update Cargo.toml
 const cargoToml = "src-tauri/Cargo.toml";
@@ -27,9 +27,15 @@ cargoContent = cargoContent.replace(
 );
 
 fs.writeFileSync(cargoToml, cargoContent);
-console.log(`Updated ${cargoToml} → ${version}`);
+console.log(`Updated ${cargoToml} -> ${version}`);
 
-// 3. Update tauri.conf.json
+// 3. Update Cargo.lock
+
+execSync("cargo update --workspace", { cwd: "src-tauri", stdio: "inherit" });
+
+console.log(`Updated Cargo.lock -> ${version}`);
+
+// 4. Update tauri.conf.json
 const tauriConfigPath = "src-tauri/tauri.conf.json";
 const tauriConfig = JSON.parse(fs.readFileSync(tauriConfigPath));
 
@@ -39,9 +45,9 @@ fs.writeFileSync(
   tauriConfigPath,
   JSON.stringify(tauriConfig, null, 2) + "\n"
 );
-console.log(`Updated ${tauriConfigPath} → ${version}`);
+console.log(`Updated ${tauriConfigPath} -> ${version}`);
 
-// 4. Update Cinny web submodule to latest tag
+// 5. Update Cinny web submodule to latest tag
 console.log("Updating cinny web submodule");
 
 execSync("git submodule update --init --recursive", { stdio: "inherit" });
