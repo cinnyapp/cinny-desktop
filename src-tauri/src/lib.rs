@@ -16,7 +16,10 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 pub fn run() {
     let port: u16 = 44548;
     let context = tauri::generate_context!();
+    #[cfg(feature = "updater")]
     let mut builder = tauri::Builder::default();
+    #[cfg(not(feature = "updater"))]
+    let builder = tauri::Builder::default();
 
     // #[cfg(target_os = "macos")]
     // {
@@ -25,12 +28,11 @@ pub fn run() {
 
     #[cfg(feature = "updater")]
     {
-        builder = builder
-            .plugin(tauri_plugin_updater::Builder::new().build())
-            .plugin(tauri_plugin_dialog::init());
+        builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
     }
 
     builder
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init())

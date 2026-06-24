@@ -28,7 +28,7 @@ tauri-plugin-http = "2.5.9"
 tauri-plugin-process = "2.3.1"
 tauri-plugin-os = "2.3.2"
 tauri-plugin-opener = "2.5.4"
-tauri-plugin-dialog = { version = "2.7.1", optional = true }
+tauri-plugin-dialog = "2.7.1"
 
 [features]
 # by default Tauri runs in production mode
@@ -37,7 +37,7 @@ default = [ "custom-protocol", "updater" ]
 # this feature is used used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
 custom-protocol = [ "tauri/custom-protocol" ]
-updater = [ "tauri-plugin-updater", "tauri-plugin-dialog" ]
+updater = [ "tauri-plugin-updater" ]
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2.3.2"
