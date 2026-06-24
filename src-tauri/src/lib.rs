@@ -7,54 +7,67 @@
 
 use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, WebviewUrl};
 use tauri_plugin_opener::OpenerExt;
+
+#[cfg(feature = "updater")]
 use tauri_plugin_updater::UpdaterExt;
+#[cfg(feature = "updater")]
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
 pub fn run() {
     let port: u16 = 44548;
     let context = tauri::generate_context!();
-    let builder = tauri::Builder::default();
+    let mut builder = tauri::Builder::default();
 
     // #[cfg(target_os = "macos")]
     // {
     //     builder = builder.menu(menu::menu());
     // }
 
+    #[cfg(feature = "updater")]
+    {
+        builder = builder
+            .plugin(tauri_plugin_updater::Builder::new().build())
+            .plugin(tauri_plugin_dialog::init());
+    }
+
     builder
-        .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
         .setup(move |app| {
-            let handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move {
-                let updater = match handle.updater() {
-                    Ok(u) => u,
-                    Err(_) => return, // for updater not configured (e.g. Flatpak)
-                };
+            #[cfg(feature = "updater")]
+            {
+                let handle = app.handle().clone();
+                tauri::async_runtime::spawn(async move {
+                    let updater = match handle.updater() {
+                        Ok(u) => u,
+                        Err(e) => {
+                            eprintln!("Updater not available: {}", e);
+                            return;
+                        }
+                    };
+                    if let Ok(Some(update)) = updater.check().await {
+                        let version = update.version.clone();
 
-                if let Ok(Some(update)) = updater.check().await {
-                    let version = update.version.clone();
-                    
-                    let should_update = handle
-                        .dialog()
-                        .message(format!(
-                            "Version {} is available.\n\nWould you like to update now?",
-                            version
-                        ))
-                        .title("Update Available")
-                        .kind(MessageDialogKind::Info)
-                        .buttons(MessageDialogButtons::YesNo)
-                        .blocking_show();
+                        let should_update = handle
+                            .dialog()
+                            .message(format!(
+                                "Version {} is available.\n\nWould you like to update now?",
+                                version
+                            ))
+                            .title("Update Available")
+                            .kind(MessageDialogKind::Info)
+                            .buttons(MessageDialogButtons::YesNo)
+                            .blocking_show();
 
-                    if should_update {
-                        if update.download_and_install(|_, _| {}, || {}).await.is_ok() {
-                            handle.restart();
+                        if should_update {
+                            if update.download_and_install(|_, _| {}, || {}).await.is_ok() {
+                                handle.restart();
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
 
             // Dev: use devUrl from tauri.conf.json (http://localhost:8080) to support HMR
             #[cfg(debug_assertions)]
