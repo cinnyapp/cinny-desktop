@@ -11,9 +11,9 @@ Installers for macOS, Windows and Linux can be downloaded from [Github releases]
 
 Operating System | Download
 ---|---
-Windows | <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-x86_64.msi'>Get it on Windows</a>
-macOS | <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-universal.dmg'>Get it on macOS</a>
-Linux | <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-x86_64.AppImage'>Get it on Linux</a> · <a href='https://flathub.org/apps/details/in.cinny.Cinny'>Flatpak</a>
+Windows | <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-x86_64.msi'>Cinny.msi</a> · <a href='https://scoop.sh/#/apps?q=cinny'>Install via Scoop</a>
+macOS | <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-universal.dmg'>Cinny.dmg</a> · <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-universal.app.tar.gz'>Cinny.app</a>
+Linux | <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-x86_64.AppImage'>Cinny.AppImage</a> · <a href='https://flathub.org/apps/details/in.cinny.Cinny'>Flatpak</a>
 
 Decoded public key:
 > RWRflTUQD3RHFtn25QNANCmePR9+4LSK89kAKTMEEB4OKpOFpLMgc64z
