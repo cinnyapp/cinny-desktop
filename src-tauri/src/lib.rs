@@ -14,6 +14,19 @@ use tauri_plugin_updater::UpdaterExt;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
 pub fn run() {
+    
+    for key in ["NO_PROXY", "no_proxy"] {
+        let current_val = std::env::var(key).unwrap_or_default();
+        if !current_val.contains("localhost") {
+            let new_val = if current_val.is_empty() {
+                "localhost,127.0.0.1".to_string()
+            } else {
+                format!("{},localhost,127.0.0.1", current_val)
+            };
+            std::env::set_var(key, new_val);
+        }
+    }
+
     let port: u16 = 44548;
     let context = tauri::generate_context!();
     #[cfg(feature = "updater")]
