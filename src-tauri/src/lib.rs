@@ -5,7 +5,7 @@
 
 // mod menu;
 
-use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, WebviewUrl};
+use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, WebviewUrl, TitleBarStyle};
 use tauri_plugin_opener::OpenerExt;
 
 #[cfg(feature = "updater")]
@@ -96,14 +96,18 @@ pub fn run() {
             };
 
             let app_handle = app.handle().clone();
-            WebviewWindowBuilder::new(app, "main".to_string(), window_url)
+            let window_builder = WebviewWindowBuilder::new(app, "main".to_string(), window_url)
                 .title("Cinny")
                 .disable_drag_drop_handler()
                 .on_new_window(move |url, _features| {
                     let _ = app_handle.opener().open_url(url.as_str(), None::<&str>);
                     NewWindowResponse::Deny
-                })
-                .build()?;
+                });
+
+            #[cfg(target_os = "macos")]
+            let window_builder = window_builder.title_bar_style(TitleBarStyle::Transparent);
+            
+            window_builder.build()?;
             Ok(())
         })
         .run(context)
