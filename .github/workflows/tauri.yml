@@ -96,20 +96,19 @@ jobs:
         run: Move-Item "src-tauri\target\release\bundle\nsis\Cinny_${{ env.TAURI_VERSION }}_arm64-setup.exe" "src-tauri\target\release\bundle\nsis\Cinny_desktop-aarch64-setup.exe"
         shell: pwsh
       - name: Move nsis.zip
-        run: Move-Item "src-tauri\target\release\bundle\nsis\Cinny_${{ env.TAURI_VERSION }}_arm64-setup.nsis.zip" "src-tauri\target\release\bundle\nsis\Cinny_desktop-aarch64.nsis.zip
+        run: Move-Item "src-tauri\target\release\bundle\nsis\Cinny_${{ env.TAURI_VERSION }}_arm64-setup.nsis.zip" "src-tauri\target\release\bundle\nsis\Cinny_desktop-aarch64-setup.nsis.zip
         shell: pwsh
       - name: Move nsis.zip.sig
-        run: Move-Item "src-tauri\target\release\bundle\nsis\Cinny_${{ env.TAURI_VERSION }}_arm64-setup.nsis.zip.sig" "src-tauri\target\release\bundle\nsis\Cinny_desktop-aarch64.nsis.zip.sig"
+        run: Move-Item "src-tauri\target\release\bundle\nsis\Cinny_${{ env.TAURI_VERSION }}_arm64-setup.nsis.zip.sig" "src-tauri\target\release\bundle\nsis\Cinny_desktop-aarch64-setup.nsis.zip.sig"
         shell: pwsh
       - name: Upload tagged release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            src-tauri/target/release/bundle/msi/Cinny_desktop-x86_64.msi
-            src-tauri/target/release/bundle/msi/Cinny_desktop-x86_64.msi.zip
-            src-tauri/target/release/bundle/msi/Cinny_desktop-x86_64.msi.zip.sig
-
+            src-tauri/target/release/bundle/nsis/Cinny_desktop-aarch64-setup.exe
+            src-tauri/target/release/bundle/nsis/Cinny_desktop-aarch64-setup.nsis.zip
+            src-tauri/target/release/bundle/nsis/Cinny_desktop-aarch64-setup.nsis.zip.sig
 
   # Linux-x86_64
   linux-x86_64:

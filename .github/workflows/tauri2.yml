@@ -4,6 +4,55 @@ on:
     types: [published]
 
 jobs:
+  # Windows-aarch_64
+  windows-aarch_64:
+    runs-on: windows-11-arm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: 
+          submodules: true
+      - name: Setup node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: ".node-version"
+          package-manager-cache: false
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable # They use branch based releases
+      - name: Install cinny dependencies
+        run: cd cinny && npm ci
+      - name: Install tauri dependencies
+        run: npm ci
+      - name: Disble updater
+        run: git apply 0001-disable-tauri-updater.patch
+      - name: Build desktop app with Tauri
+        uses: tauri-apps/tauri-action@73fb865345c54760d875b94642314f8c0c894afa # v0.6.1
+        with:
+          args: "--bundles nsis"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          NODE_OPTIONS: "--max_old_space_size=4096"
+      - name: Get app version (windows)
+        run: |
+          $json = (Get-Content "src-tauri\tauri.conf.json" -Raw) | ConvertFrom-Json
+          $version = $json.version
+          echo "Version: ${version}"
+          echo "TAURI_VERSION=${version}" >> $Env:GITHUB_ENV
+          echo "${Env:TAURI_VERSION}"
+        shell: pwsh
+      - name: Move msi
+        run: Move-Item "src-tauri\target\release\bundle\msi\Cinny_${{ env.TAURI_VERSION }}_arm64-setup.exe" "src-tauri\target\release\bundle\msi\Cinny_desktop-aarch64-setup-no_updater.exe"
+        shell: pwsh
+      - name: Upload tagged release
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            src-tauri/target/release/bundle/nsis/Cinny_desktop-aarch64-setup-no_updater.exe
+
+
   # Windows-x86_64
   windows-x86_64:
     runs-on: windows-latest

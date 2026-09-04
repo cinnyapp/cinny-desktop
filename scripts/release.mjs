@@ -46,10 +46,10 @@ async function createTauriRelease() {
       windowsX86_64.signature = await getAssetSign(browser_download_url);
     }
 
-    if (/\.nsis\.zip$/.test(name)) {
+    if (/aarch64\.nsis\.zip$/.test(name)) {
       windowsAarch64.url = browser_download_url;
     }
-    if (/\.nsis\.zip\.sig$/.test(name)) {
+    if (/aarch64\.nsis\.zip\.sig$/.test(name)) {
       windowsAarch64.signature = await getAssetSign(browser_download_url);
     }
 
