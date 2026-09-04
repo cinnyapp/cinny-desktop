@@ -12,6 +12,7 @@ Installers for macOS, Windows and Linux can be downloaded from [Github releases]
 Operating System | Download
 ---|---
 Windows | <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-x86_64.msi'>Cinny.msi</a> · <a href='https://scoop.sh/#/apps?q=cinny'>Install via Scoop</a>
+Windows ARM64 | <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-aarch64-setup.exe'>Cinny.exe</a>
 macOS | <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-universal.dmg'>Cinny.dmg</a> · <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-universal.app.tar.gz'>Cinny.app</a>
 Linux | <a href='https://github.com/cinnyapp/cinny-desktop/releases/latest/download/Cinny_desktop-x86_64.AppImage'>Cinny.AppImage</a> · <a href='https://flathub.org/apps/details/in.cinny.Cinny'>Flatpak</a>
 
