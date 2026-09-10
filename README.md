@@ -37,3 +37,12 @@ To build the app locally, run:
 
 To start local dev server, run:
 * `npm run tauri dev`
+
+## License
+Cinny Project  
+Copyright © 2024–present Ajay Bura  
+https://cinny.in  
+
+Cinny is licensed under the GNU Affero General Public License, 
+Version 3 of the License (AGPL-3.0-only).
+You may obtain a copy of the License at https://www.gnu.org/licenses/agpl-3.0.html
