@@ -9,6 +9,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - platform: "windows-11-arm"
+            args: "--bundles nsis"
           - platform: 'macos-latest'
             args: '--target universal-apple-darwin'
           - platform: 'ubuntu-22.04'
@@ -65,6 +67,15 @@ jobs:
           src-tauri/target/release/bundle/deb/Cinny_*.deb
           src-tauri/target/release/bundle/rpm/Cinny-*.rpm
           src-tauri/target/release/bundle/appimage/Cinny_*.AppImage
+        if-no-files-found: warn
+
+    - name: Upload Windows ARM64 artifacts
+      if: matrix.platofmr == 'windows-11-arm'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with: 
+        name: release-artifacts-windows-arm64
+        path: |
+          src-tauri/target/release/bundle/nsis/Cinny_*_arm64-setup.exe
         if-no-files-found: warn
 
     - name: Upload Windows artifacts
