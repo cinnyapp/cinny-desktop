@@ -43,14 +43,14 @@ jobs:
           echo "${Env:TAURI_VERSION}"
         shell: pwsh
       - name: Move msi
-        run: Move-Item "src-tauri\target\release\bundle\msi\Cinny_${{ env.TAURI_VERSION }}_arm64-setup.exe" "src-tauri\target\release\bundle\msi\Cinny_desktop-aarch64-setup-no_updater.exe"
+        run: Move-Item "src-tauri\target\release\bundle\msi\Cinny_${{ env.TAURI_VERSION }}_arm64.exe" "src-tauri\target\release\bundle\msi\Cinny_desktop-aarch64-no_updater.exe"
         shell: pwsh
       - name: Upload tagged release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            src-tauri/target/release/bundle/nsis/Cinny_desktop-aarch64-setup-no_updater.exe
+            src-tauri/target/release/bundle/nsis/Cinny_desktop-aarch64-no_updater.exe
 
 
   # Windows-x86_64
