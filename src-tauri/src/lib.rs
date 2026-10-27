@@ -45,6 +45,7 @@ pub fn run() {
     }
 
     builder
+        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
@@ -95,9 +96,76 @@ pub fn run() {
                 WebviewUrl::External(url)
             };
 
+            let init_script = r#"
+                if (window.__TAURI_INTERNALS__) {
+                    class TauriNotification {
+                        constructor(title, options) {
+                            this.title = title;
+                            this.options = options || {};
+                            window.__TAURI_INTERNALS__.invoke('plugin:notification|notify', {
+                                options: {
+                                    title: this.title,
+                                    body: this.options.body || '',
+                                    icon: this.options.icon || '',
+                                }
+                            }).catch(console.error);
+                        }
+                        static get permission() {
+                            return window.__tauriNotificationPermission || 'default';
+                        }
+                        static requestPermission() {
+                            return window.__TAURI_INTERNALS__.invoke('plugin:notification|request_permission')
+                                .then(function(permission) {
+                                    window.__tauriNotificationPermission = permission;
+                                    if (window.__tauriNotificationPermissionStatus) {
+                                        window.__tauriNotificationPermissionStatus.state = permission;
+                                        if (typeof window.__tauriNotificationPermissionStatus.onchange === 'function') {
+                                            window.__tauriNotificationPermissionStatus.onchange.call(window.__tauriNotificationPermissionStatus);
+                                        }
+                                    }
+                                    return permission;
+                                })
+                                .catch(function() { return 'denied'; });
+                        }
+                        close() {}
+                    }
+                    window.Notification = TauriNotification;
+
+                    const originalQuery = navigator.permissions.query;
+                    navigator.permissions.query = function(parameters) {
+                        if (parameters && parameters.name === 'notifications') {
+                            return window.__TAURI_INTERNALS__.invoke('plugin:notification|is_permission_granted')
+                                .then(function(isGranted) {
+                                    const state = isGranted ? 'granted' : (window.__tauriNotificationPermission === 'denied' ? 'denied' : 'prompt');
+                                    window.__tauriNotificationPermission = state;
+                                    
+                                    if (!window.__tauriNotificationPermissionStatus) {
+                                        window.__tauriNotificationPermissionStatus = {
+                                            name: 'notifications',
+                                            state: state,
+                                            onchange: null,
+                                            addEventListener: function(type, listener) {
+                                                if (type === 'change') this.onchange = listener;
+                                            },
+                                            removeEventListener: function(type, listener) {
+                                                if (type === 'change' && this.onchange === listener) this.onchange = null;
+                                            }
+                                        };
+                                    } else {
+                                        window.__tauriNotificationPermissionStatus.state = state;
+                                    }
+                                    return window.__tauriNotificationPermissionStatus;
+                                });
+                        }
+                        return originalQuery.call(navigator.permissions, parameters);
+                    };
+                }
+            "#;
+
             let app_handle = app.handle().clone();
             let window_builder = WebviewWindowBuilder::new(app, "main".to_string(), window_url)
                 .title("Cinny")
+                .initialization_script(init_script)
                 .disable_drag_drop_handler()
                 .on_new_window(move |url, _features| {
                     let _ = app_handle.opener().open_url(url.as_str(), None::<&str>);
