@@ -12,6 +12,7 @@
   ],
   "permissions": [
     "core:default",
+    "allow-set-unread",
     "fs:allow-read-file",
     "fs:allow-write-file",
     "fs:allow-read-dir",
