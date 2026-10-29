@@ -99,6 +99,20 @@ pub fn run() {
             let window_builder = WebviewWindowBuilder::new(app, "main".to_string(), window_url)
                 .title("Cinny")
                 .disable_drag_drop_handler()
+                .initialization_script(
+                    r#"
+                    window.addEventListener('keydown', (event) => {
+                        // Minimize window on Ctrl + M (or Cmd + M on macOS)
+                        if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && (event.key === 'm' || event.key === 'M' || event.code === 'KeyM')) {
+                            event.preventDefault();
+                            if (window.__TAURI_INTERNALS__ && typeof window.__TAURI_INTERNALS__.invoke === 'function') {
+                                const label = (window.__TAURI_INTERNALS__.metadata && window.__TAURI_INTERNALS__.metadata.currentWindow && window.__TAURI_INTERNALS__.metadata.currentWindow.label) || 'main';
+                                window.__TAURI_INTERNALS__.invoke('plugin:window|minimize', { label }).catch(console.error);
+                            }
+                        }
+                    }, true);
+                    "#,
+                )
                 .on_new_window(move |url, _features| {
                     let _ = app_handle.opener().open_url(url.as_str(), None::<&str>);
                     NewWindowResponse::Deny
