@@ -31,6 +31,7 @@ async function createTauriRelease() {
   const latestAssets = latestRelease.data.assets;
 
   const windowsX86_64 = {};
+  const windowsAarch64 = {};
   const linuxX86_64 = {};
   const darwinX86_64 = {};
   const darwinAarch64 = {};
@@ -43,6 +44,13 @@ async function createTauriRelease() {
     }
     if (/\.msi\.zip\.sig$/.test(name)) {
       windowsX86_64.signature = await getAssetSign(browser_download_url);
+    }
+
+    if (/aarch64\.nsis\.zip$/.test(name)) {
+      windowsAarch64.url = browser_download_url;
+    }
+    if (/aarch64\.nsis\.zip\.sig$/.test(name)) {
+      windowsAarch64.signature = await getAssetSign(browser_download_url);
     }
 
     if (/\.AppImage\.tar\.gz$/.test(name)) {
@@ -78,6 +86,9 @@ async function createTauriRelease() {
 
   if (windowsX86_64.url) releaseData.platforms["windows-x86_64"] = windowsX86_64;
   else console.error('Failed to get release for windowsX86_64');
+
+  if (windowsAarch64.url) releaseData.platforms["windows-aarch64"] = windowsAarch64;
+  else console.error('Failed to get release for windowsAarch64');
 
   if (linuxX86_64.url) releaseData.platforms["linux-x86_64"] = linuxX86_64;
   else console.error('Failed to get release for linuxX86_64');
