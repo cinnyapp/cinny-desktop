@@ -4,6 +4,12 @@
 )]
 
 // mod menu;
+mod badge;
+#[cfg(not(target_os = "linux"))]
+mod tray;
+#[cfg(target_os = "linux")]
+mod tray_linux;
+mod window;
 
 use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, WebviewUrl, TitleBarStyle};
 use tauri_plugin_opener::OpenerExt;
@@ -29,15 +35,22 @@ pub fn run() {
 
     let port: u16 = 44548;
     let context = tauri::generate_context!();
-    #[cfg(feature = "updater")]
+    #[allow(unused_mut)]
     let mut builder = tauri::Builder::default();
-    #[cfg(not(feature = "updater"))]
-    let builder = tauri::Builder::default();
 
     // #[cfg(target_os = "macos")]
     // {
     //     builder = builder.menu(menu::menu());
     // }
+
+    // Must be registered first: a second launch focuses the running instance
+    // (which may be hidden in the tray) instead of opening another window.
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            window::show_main(app);
+        }));
+    }
 
     #[cfg(feature = "updater")]
     {
@@ -49,6 +62,7 @@ pub fn run() {
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
+        .invoke_handler(tauri::generate_handler![badge::set_unread])
         .setup(move |app| {
             #[cfg(feature = "updater")]
             {
@@ -98,6 +112,7 @@ pub fn run() {
             let app_handle = app.handle().clone();
             let window_builder = WebviewWindowBuilder::new(app, "main".to_string(), window_url)
                 .title("Cinny")
+                .initialization_script(badge::INIT_SCRIPT)
                 .disable_drag_drop_handler()
                 .on_new_window(move |url, _features| {
                     let _ = app_handle.opener().open_url(url.as_str(), None::<&str>);
@@ -107,9 +122,34 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             let window_builder = window_builder.title_bar_style(TitleBarStyle::Transparent);
             
-            window_builder.build()?;
+            let window = window_builder.build()?;
+
+            // Close to tray: hide the window instead of quitting the app,
+            // as long as there is a tray icon to bring it back.
+            let win = window.clone();
+            window.on_window_event(move |event| {
+                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                    if window::tray_available() {
+                        api.prevent_close();
+                        let _ = win.hide();
+                    }
+                }
+            });
+
+            #[cfg(not(target_os = "linux"))]
+            tray::build(app.handle())?;
+            #[cfg(target_os = "linux")]
+            tray_linux::build(app.handle().clone());
+
             Ok(())
         })
-        .run(context)
-        .expect("error while building tauri application");
+        .build(context)
+        .expect("error while building tauri application")
+        .run(|_app, _event| {
+            // Clicking the Dock icon brings back a window hidden by close to tray.
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen { has_visible_windows: false, .. } = _event {
+                window::show_main(_app);
+            }
+        });
 }
