@@ -48,6 +48,8 @@ tauri-plugin-updater = { version = "2.10.1", features = ["rustls-tls"], optional
 # Tauri's libayatana-appindicator backend cannot deliver). See src/tray_linux.rs.
 [target.'cfg(target_os = "linux")'.dependencies]
 ksni = "0.2"
+# Same version ksni uses; watches whether a tray host is registered.
+dbus = "0.9"
 
 # Desktop platforms other than Linux use Tauri's built-in tray. Enabling the
 # tray-icon feature only here keeps libappindicator out of the Linux build.

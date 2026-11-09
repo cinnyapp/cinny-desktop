@@ -7,7 +7,7 @@ use tauri::{AppHandle, Manager, Runtime};
 
 /// Whether a tray icon is shown. On Linux this needs a StatusNotifierItem
 /// host (e.g. GNOME without the AppIndicator extension has none), so it
-/// starts false there and is set once the tray is registered.
+/// starts false there and is set once a tray host is registered.
 static TRAY_AVAILABLE: AtomicBool = AtomicBool::new(cfg!(not(target_os = "linux")));
 
 pub fn set_tray_available(available: bool) {
@@ -29,6 +29,16 @@ pub fn show_main<R: Runtime>(app: &AppHandle<R>) {
     }
     // The taskbar overlay is lost while the window is hidden.
     crate::badge::reapply(app);
+}
+
+/// Bring back a hidden window when there is no tray icon to reopen it from.
+pub fn show_if_hidden<R: Runtime>(app: &AppHandle<R>) {
+    let hidden = app
+        .get_webview_window("main")
+        .is_some_and(|window| !window.is_visible().unwrap_or(true));
+    if hidden {
+        show_main(app);
+    }
 }
 
 /// Hide the main window if it is on screen, otherwise bring it back.
