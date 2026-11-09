@@ -35,12 +35,13 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
                 return;
             }
             match event {
+                // Toggle on press: a double click sends press, release,
+                // double click, release, so it ends with the window shown.
                 TrayIconEvent::Click {
                     button: MouseButton::Left,
-                    button_state: MouseButtonState::Up,
+                    button_state: MouseButtonState::Down,
                     ..
                 } => toggle_main(tray.app_handle()),
-                // A double click also sends two clicks; make sure it ends shown.
                 TrayIconEvent::DoubleClick {
                     button: MouseButton::Left,
                     ..

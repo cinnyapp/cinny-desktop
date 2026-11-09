@@ -5,6 +5,10 @@
 //! app — only the context menu works. By implementing the StatusNotifierItem
 //! ourselves (the same approach Qt apps such as Nextcloud use) we get proper
 //! left-click-to-toggle behaviour. The tray runs in its own background thread.
+//!
+//! ksni holds a lock on the tray while a callback runs, and `set_unread` takes
+//! that lock from the main thread. Callbacks therefore must not block on the
+//! main thread: window calls are dispatched with `run_on_main_thread`.
 
 use ksni::{
     menu::{MenuItem, StandardItem},
@@ -12,7 +16,7 @@ use ksni::{
 };
 use tauri::{AppHandle, Manager};
 
-use crate::window::toggle_main;
+use crate::window::{self, toggle_main};
 
 struct CinnyTray {
     app: AppHandle,
@@ -50,14 +54,25 @@ impl Tray for CinnyTray {
 
     // Left click.
     fn activate(&mut self, _x: i32, _y: i32) {
-        toggle_main(&self.app);
+        on_main_thread(&self.app, toggle_main);
+    }
+
+    fn watcher_online(&self) {
+        window::set_tray_available(true);
+    }
+
+    // No tray host: keep the service running in case one appears later, but
+    // let closing the window quit instead of hiding it.
+    fn watcher_offine(&self) -> bool {
+        window::set_tray_available(false);
+        true
     }
 
     fn menu(&self) -> Vec<MenuItem<Self>> {
         vec![
             StandardItem {
                 label: "Show/Hide Cinny".into(),
-                activate: Box::new(|this: &mut Self| toggle_main(&this.app)),
+                activate: Box::new(|this: &mut Self| on_main_thread(&this.app, toggle_main)),
                 ..Default::default()
             }
             .into(),
@@ -70,6 +85,12 @@ impl Tray for CinnyTray {
             .into(),
         ]
     }
+}
+
+/// Run `f` on the main thread without waiting for it.
+fn on_main_thread(app: &AppHandle, f: fn(&AppHandle)) {
+    let handle = app.clone();
+    let _ = app.run_on_main_thread(move || f(&handle));
 }
 
 /// Spawn the native SNI tray on its own thread.
@@ -93,7 +114,19 @@ pub fn build(app: AppHandle) {
         unread: false,
     });
     app.manage(service.handle());
-    service.spawn();
+    // Flatpak apps may not own the per-process D-Bus name ksni requests.
+    let in_flatpak = std::path::Path::new("/.flatpak-info").exists();
+    std::thread::spawn(move || {
+        let result = if in_flatpak {
+            service.run_without_dbus_name()
+        } else {
+            service.run()
+        };
+        if let Err(err) = result {
+            window::set_tray_available(false);
+            eprintln!("System tray unavailable: {err}");
+        }
+    });
 }
 
 /// Show or hide the unread dot on the tray icon.

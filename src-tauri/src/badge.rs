@@ -5,7 +5,9 @@
 //! favicon and reports changes to the `set_unread` command, which draws a red
 //! dot onto the tray icon.
 
-use tauri::{image::Image, AppHandle};
+use std::sync::atomic::{AtomicBool, Ordering};
+
+use tauri::{image::Image, AppHandle, Runtime};
 
 /// Injected into the main webview. The unread/highlight favicons are inlined
 /// as data URIs in release builds, so they are recognised by their colours
@@ -68,20 +70,33 @@ fn draw_dot(rgba: &mut [u8], w: u32, h: u32, cx: f32, cy: f32, r: f32, border: f
     }
 }
 
+/// Last unread state reported by the frontend.
+static UNREAD: AtomicBool = AtomicBool::new(false);
+
 /// Show or clear the unread indicator: a dot on the tray icon everywhere,
 /// plus the Dock badge on macOS and a taskbar overlay on Windows.
 #[tauri::command]
 pub fn set_unread(app: AppHandle, unread: bool) {
+    UNREAD.store(unread, Ordering::Relaxed);
     #[cfg(not(target_os = "linux"))]
     crate::tray::set_unread(&app, unread);
     #[cfg(target_os = "linux")]
     crate::tray_linux::set_unread(&app, unread);
+    reapply(&app);
+}
 
+/// Apply the unread state to the Dock badge (macOS) or taskbar overlay
+/// (Windows). The overlay needs a taskbar button, so this runs again
+/// whenever the window is shown.
+pub fn reapply<R: Runtime>(app: &AppHandle<R>) {
     #[cfg(any(target_os = "macos", target_os = "windows"))]
-    if let Some(window) = tauri::Manager::get_webview_window(&app, "main") {
+    if let Some(window) = tauri::Manager::get_webview_window(app, "main") {
+        let unread = UNREAD.load(Ordering::Relaxed);
         #[cfg(target_os = "macos")]
         let _ = window.set_badge_label(unread.then(|| "\u{2022}".to_string()));
         #[cfg(target_os = "windows")]
         let _ = window.set_overlay_icon(unread.then(|| dot(32)));
     }
+    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+    let _ = app;
 }

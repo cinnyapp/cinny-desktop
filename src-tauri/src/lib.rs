@@ -124,12 +124,15 @@ pub fn run() {
             
             let window = window_builder.build()?;
 
-            // Close to tray: hide the window instead of quitting the app.
+            // Close to tray: hide the window instead of quitting the app,
+            // as long as there is a tray icon to bring it back.
             let win = window.clone();
             window.on_window_event(move |event| {
                 if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                    api.prevent_close();
-                    let _ = win.hide();
+                    if window::tray_available() {
+                        api.prevent_close();
+                        let _ = win.hide();
+                    }
                 }
             });
 
