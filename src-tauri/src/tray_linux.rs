@@ -11,7 +11,7 @@
 //! main thread: window calls are dispatched with `run_on_main_thread`.
 
 use ksni::{
-    menu::{MenuItem, StandardItem},
+    menu::{CheckmarkItem, MenuItem, StandardItem},
     Handle, Icon, Tray, TrayService,
 };
 use std::{
@@ -29,7 +29,10 @@ use dbus::{
 };
 use tauri::{AppHandle, Manager};
 
-use crate::window::{self, toggle_main};
+use crate::{
+    settings,
+    window::{self, toggle_main},
+};
 
 struct CinnyTray {
     app: AppHandle,
@@ -77,7 +80,10 @@ impl Tray for CinnyTray {
     }
 
     fn menu(&self) -> Vec<MenuItem<Self>> {
-        vec![
+        let current = settings::get(&self.app);
+        let autostart_on = settings::autostart_enabled(&self.app);
+
+        let mut items = vec![
             StandardItem {
                 label: "Show/Hide Cinny".into(),
                 activate: Box::new(|this: &mut Self| on_main_thread(&this.app, toggle_main)),
@@ -85,13 +91,51 @@ impl Tray for CinnyTray {
             }
             .into(),
             MenuItem::Separator,
+            CheckmarkItem {
+                label: "Close to tray".into(),
+                checked: current.close_to_tray,
+                activate: Box::new(|this: &mut Self| {
+                    settings::update(&this.app, |s| s.close_to_tray = !s.close_to_tray)
+                }),
+                ..Default::default()
+            }
+            .into(),
+        ];
+        if settings::autostart_supported() {
+            items.push(
+                CheckmarkItem {
+                    label: "Launch at login".into(),
+                    checked: autostart_on,
+                    activate: Box::new(|this: &mut Self| {
+                        settings::set_autostart(&this.app, !settings::autostart_enabled(&this.app));
+                    }),
+                    ..Default::default()
+                }
+                .into(),
+            );
+            items.push(
+                CheckmarkItem {
+                    label: "Start hidden at login".into(),
+                    checked: current.start_hidden,
+                    enabled: autostart_on,
+                    activate: Box::new(|this: &mut Self| {
+                        settings::update(&this.app, |s| s.start_hidden = !s.start_hidden)
+                    }),
+                    ..Default::default()
+                }
+                .into(),
+            );
+        }
+        items.push(MenuItem::Separator);
+        items.push(
             StandardItem {
                 label: "Quit".into(),
                 activate: Box::new(|this: &mut Self| this.app.exit(0)),
                 ..Default::default()
             }
             .into(),
-        ]
+        );
+        items
     }
 }
 

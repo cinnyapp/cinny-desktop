@@ -5,14 +5,16 @@
 
 // mod menu;
 mod badge;
+mod settings;
 #[cfg(not(target_os = "linux"))]
 mod tray;
 #[cfg(target_os = "linux")]
 mod tray_linux;
 mod window;
 
-use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, WebviewUrl, TitleBarStyle};
+use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, Manager, WebviewUrl, TitleBarStyle};
 use tauri_plugin_opener::OpenerExt;
+use tauri_plugin_window_state::StateFlags;
 
 #[cfg(feature = "updater")]
 use tauri_plugin_updater::UpdaterExt;
@@ -57,13 +59,30 @@ pub fn run() {
         builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
     }
 
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(
+            tauri_plugin_autostart::Builder::new()
+                .arg(settings::AUTOSTART_ARG)
+                .build(),
+        );
+    }
+
     builder
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+        // Visibility is decided below (start hidden at login), not restored.
+        .plugin(
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(StateFlags::all() & !StateFlags::VISIBLE)
+                .build(),
+        )
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![badge::set_unread])
         .setup(move |app| {
+            settings::init(app.handle());
+            settings::refresh_autostart(app.handle());
+
             #[cfg(feature = "updater")]
             {
                 let handle = app.handle().clone();
@@ -112,6 +131,7 @@ pub fn run() {
             let app_handle = app.handle().clone();
             let window_builder = WebviewWindowBuilder::new(app, "main".to_string(), window_url)
                 .title("Cinny")
+                .visible(!settings::launch_hidden(app.handle()))
                 .initialization_script(badge::INIT_SCRIPT)
                 .disable_drag_drop_handler()
                 .on_new_window(move |url, _features| {
@@ -129,7 +149,7 @@ pub fn run() {
             let win = window.clone();
             window.on_window_event(move |event| {
                 if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                    if window::tray_available() {
+                    if window::tray_available() && settings::get(win.app_handle()).close_to_tray {
                         api.prevent_close();
                         let _ = win.hide();
                     }
