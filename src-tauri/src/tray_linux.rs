@@ -12,18 +12,7 @@ use ksni::{
 };
 use tauri::{AppHandle, Manager};
 
-/// Toggle the main window between shown/focused and hidden.
-fn toggle_window(app: &AppHandle) {
-    if let Some(window) = app.get_webview_window("main") {
-        if window.is_visible().unwrap_or(false) {
-            let _ = window.hide();
-        } else {
-            let _ = window.unminimize();
-            let _ = window.show();
-            let _ = window.set_focus();
-        }
-    }
-}
+use crate::window::toggle_main;
 
 struct CinnyTray {
     app: AppHandle,
@@ -61,14 +50,14 @@ impl Tray for CinnyTray {
 
     // Left click.
     fn activate(&mut self, _x: i32, _y: i32) {
-        toggle_window(&self.app);
+        toggle_main(&self.app);
     }
 
     fn menu(&self) -> Vec<MenuItem<Self>> {
         vec![
             StandardItem {
                 label: "Show/Hide Cinny".into(),
-                activate: Box::new(|this: &mut Self| toggle_window(&this.app)),
+                activate: Box::new(|this: &mut Self| toggle_main(&this.app)),
                 ..Default::default()
             }
             .into(),

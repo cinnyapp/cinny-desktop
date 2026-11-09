@@ -32,13 +32,26 @@ pub const INIT_SCRIPT: &str = r#"
 
 /// Return a copy of `icon` with a red dot in the top-right corner.
 pub fn with_dot(icon: &Image<'_>) -> Image<'static> {
-    let (w, h) = (icon.width() as i32, icon.height() as i32);
+    let (w, h) = (icon.width(), icon.height());
     let mut rgba = icon.rgba().to_vec();
-
     let r = w.min(h) as f32 * 0.22;
     let border = (r * 0.18).max(1.0);
-    let (cx, cy) = (w as f32 - r - border, r + border);
+    draw_dot(&mut rgba, w, h, w as f32 - r - border, r + border, r, border);
+    Image::new_owned(rgba, w, h)
+}
 
+/// A red dot on a transparent square, used as the Windows taskbar overlay.
+#[cfg(target_os = "windows")]
+fn dot(size: u32) -> Image<'static> {
+    let mut rgba = vec![0; (size * size * 4) as usize];
+    let border = (size as f32 * 0.08).max(1.0);
+    let c = size as f32 / 2.0;
+    draw_dot(&mut rgba, size, size, c, c, c - border, border);
+    Image::new_owned(rgba, size, size)
+}
+
+/// Paint a red dot with a white border, centred at (`cx`, `cy`).
+fn draw_dot(rgba: &mut [u8], w: u32, h: u32, cx: f32, cy: f32, r: f32, border: f32) {
     for y in 0..h {
         for x in 0..w {
             let d = ((x as f32 + 0.5 - cx).powi(2) + (y as f32 + 0.5 - cy).powi(2)).sqrt();
@@ -53,14 +66,22 @@ pub fn with_dot(icon: &Image<'_>) -> Image<'static> {
             rgba[i..i + 4].copy_from_slice(&color);
         }
     }
-
-    Image::new_owned(rgba, w as u32, h as u32)
 }
 
+/// Show or clear the unread indicator: a dot on the tray icon everywhere,
+/// plus the Dock badge on macOS and a taskbar overlay on Windows.
 #[tauri::command]
 pub fn set_unread(app: AppHandle, unread: bool) {
     #[cfg(not(target_os = "linux"))]
     crate::tray::set_unread(&app, unread);
     #[cfg(target_os = "linux")]
     crate::tray_linux::set_unread(&app, unread);
+
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
+    if let Some(window) = tauri::Manager::get_webview_window(&app, "main") {
+        #[cfg(target_os = "macos")]
+        let _ = window.set_badge_label(unread.then(|| "\u{2022}".to_string()));
+        #[cfg(target_os = "windows")]
+        let _ = window.set_overlay_icon(unread.then(|| dot(32)));
+    }
 }

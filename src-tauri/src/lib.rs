@@ -9,8 +9,9 @@ mod badge;
 mod tray;
 #[cfg(target_os = "linux")]
 mod tray_linux;
+mod window;
 
-use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, Manager, WebviewUrl, TitleBarStyle};
+use tauri::{webview::{NewWindowResponse, WebviewWindowBuilder}, WebviewUrl, TitleBarStyle};
 use tauri_plugin_opener::OpenerExt;
 
 #[cfg(feature = "updater")]
@@ -47,11 +48,7 @@ pub fn run() {
     #[cfg(desktop)]
     {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            if let Some(window) = app.get_webview_window("main") {
-                let _ = window.unminimize();
-                let _ = window.show();
-                let _ = window.set_focus();
-            }
+            window::show_main(app);
         }));
     }
 
@@ -143,6 +140,13 @@ pub fn run() {
 
             Ok(())
         })
-        .run(context)
-        .expect("error while building tauri application");
+        .build(context)
+        .expect("error while building tauri application")
+        .run(|_app, _event| {
+            // Clicking the Dock icon brings back a window hidden by close to tray.
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen { has_visible_windows: false, .. } = _event {
+                window::show_main(_app);
+            }
+        });
 }
